@@ -1,0 +1,1526 @@
+---
+editor_options:
+  markdown:
+    wrap: 72
+output: pdf_document
+---
+
+**University of Edinburgh**
+
+**School of Mathematics**
+
+**Bayesian Data Analysis, 2022/2023, Semester 2**
+
+**Assignment 2**
+
+**IMPORTANT INFORMATION ABOUT THE ASSIGNMENT**
+
+**In this paragraph, we summarize the essential information about this
+assignment. The format and rules for this assignment are different from
+your other courses, so please pay attention.**
+
+**1) Deadline: The deadline for submitting your solutions to this
+assignment is the 17 April 12:00 noon Edinburgh time.**
+
+**2) Format: You will need to submit your work as 2 components: a PDF
+report, and your R Markdown (.Rmd) notebook. There will be two separate
+submission systems on Learn: Gradescope for the report in PDF format,
+and a Learn assignment for the code in Rmd format. You need to write
+your solutions into this R Markdown notebook (code in R chunks and
+explanations in Markdown chunks), and then select Knit/Knit to PDF in
+RStudio to create a PDF report.**
+
+![](knit_to_PDF.jpg){width="192"}
+
+**The compiled PDF needs to contain everything in this notebook, with
+your code sections clearly visible (not hidden), and the output of your
+code included. Reports without the code displayed in the PDF, or without
+the output of your code included in the PDF will be marked as 0, with
+the only feedback "Report did not meet submission requirements".**
+
+**You need to upload this PDF in Gradescope submission system, and your
+Rmd file in the Learn assignment submission system. You will be required
+to tag every sub question on Gradescope.**
+
+**Some key points that are different from other courses:**
+
+**a) Your report needs to contain written explanation for each question
+that you solve, and some numbers or plots showing your results.
+Solutions without written explanation that clearly demonstrates that you
+understand what you are doing will be marked as 0 irrespectively whether
+the numerics are correct or not.**
+
+**b) Your code has to be possible to run for all questions by the Run
+All in RStudio, and reproduce all of the numerics and plots in your
+report (up to some small randomness due to stochasticity of Monte Carlo
+simulations). The parts of the report that contain material that is not
+reproduced by the code will not be marked (i.e. the score will be 0),
+and the only feedback in this case will be that the results are not
+reproducible from the code.**
+
+![](run_all.jpg){width="375"}
+
+**c) Multiple Submissions are allowed BEFORE THE DEADLINE are allowed
+for both the report, and the code.\
+However, multiple submissions are NOT ALLOWED AFTER THE DEADLINE.\
+YOU WILL NOT BE ABLE TO MAKE ANY CHANGES TO YOUR SUBMISSION AFTER THE
+DEADLINE.\
+Nevertheless, if you did not submit anything before the deadline, then
+you can still submit your work after the deadline, but late penalties
+will apply. The timing of the late penalties will be determined by the
+time you have submitted BOTH the report, and the code (i.e. whichever
+was submitted later counts).**
+
+**We illustrate these rules by some examples:**
+
+**Alice has spent a lot of time and effort on her assignment for BDA.
+Unfortunately, before submission, she has accidentally introduced a typo
+in her code in the first question, and it did not run using Run All in
+RStudio. - Alice will get 0 for the questions that do not run in her
+code (we will try to run each code block individually), with the only
+feedback "Results are not reproducible from the code".**
+
+**Bob has spent a lot of time and effort on his assignment for BDA.
+Unfortunately he forgot to submit his code. - Bob will get no personal
+reminder to submit his code. Bob will get 0 for the whole assignment,
+with the only feedback "Results are not reproducible from the code, as
+the code was not submitted."**
+
+**Charles has spent a lot of time and effort on his assignment for BDA.
+He has submitted both his code and report in the correct formats.
+However, he did not include any explanations in the report. Charles will
+get 0 for the whole assignment, with the only feedback "Explanation is
+missing."**
+
+**Denise has spent a lot of time and effort on her assignment for BDA.
+She has submitted her report in the correct format, but thought that she
+can include her code as a link in the report, and upload it online (such
+as Github, or Dropbox). - Denise will get 0 for the whole assignment,
+with the only feedback "Code was not uploaded on Learn."**
+
+**3) Group work: This is an INDIVIDUAL ASSIGNMENT, like a 2 week exam
+for the course. Communication between students about the assignment
+questions is not permitted. Students who submit work that has not been
+done individually will be reported for Academic Misconduct, that can
+lead to serious consequences. Each problem will be marked by a single
+instructor, so we will be able to spot students who copy.**
+
+**4) Piazza: During the periods of the assignments, the instructor will
+change Piazza to allow messaging the instructors only, i.e. students
+will not see each others messages and replies.**
+
+**Only questions regarding clarification of the statement of the
+problems will be answered by the instructors. The instructors will not
+give you any information related to the solution of the problems, such
+questions will be simply answered as "This is not about the statement of
+the problem so we cannot answer your question."**
+
+**THE INSTRUCTORS ARE NOT GOING TO DEBUG YOUR CODE, AND YOU ARE ASSESSED
+ON YOUR ABILITY TO RESOLVE ANY CODING OR TECHNICAL DIFFICULTIES THAT YOU
+ENCOUNTER ON YOUR OWN.**
+
+**5) Office hours: There will be two office hours per week (Monday
+14:00-15:00, and Wednesdays 15:00-16:00) during the 2 weeks for this
+assignment. The links are available on Learn / Course Information. I
+will be happy to discuss the course/workshop materials. However, I will
+only answer questions about the assignment that require clarifying the
+statement of the problems, and will not give you any information about
+the solutions. Students who ask for feedback on their assignment
+solutions during office hours will be removed from the meeting.**
+
+**6) Late submissions and extensions: NO EXTENSIONS ARE ALLOWED FOR THIS
+ASSIGNMENT, AND THERE IS NO SUCH OPTION PROVIDED IN THE ESC SYSTEM.
+Students who have existing Learning Adjustments in Euclid will be
+allowed to have the same adjustments applied to this course as well, but
+they need to apply for this BEFORE THE DEADLINE on the website**
+
+<https://www.ed.ac.uk/student-administration/extensions-special-circumstances>
+
+**by clicking on "Access your learning adjustment". This will be
+approved automatically.**
+
+**Students who submit their work late will have late submission
+penalties applied by the ESC team automatically (this means that even if
+you are 1 second late because of your internet connection was slow, the
+penalties will still apply). The penalties are 5% of the total mark
+deduced for every day of delay started (i.e. one minute of delay counts
+for 1 day). The course instructors do not have any role in setting these
+penalties, we will not be able to change them.**
+
+**7) Please make sure to tag all pages in your submission on Gradescope,
+otherwise we may miss some of your work. Once your upload is complete,
+tagging does not counts towards your submission time (i.e. you won't get
+any late penalties for doing it).**
+
+```{r}
+rm(list = ls(all = TRUE))
+#Do not delete this!
+#It clears all variables to ensure reproducibility
+```
+
+![](car_insurance.jpg)
+
+```{r}
+library(INLA)
+require(fBasics)
+require(ModelMetrics)
+
+```
+
+# **Problem 1**
+
+**In this problem, we study a dataset about car insurance.** **This data
+set is based on one-year vehicle insurance policies taken out in 2004 or
+2005. In total, there are 67856 policies, of which 4624 have claims.**
+
+```{r}
+require(insuranceData)
+data(dataCar)
+
+#You may need to set the working directory first before loading the dataset
+#setwd("location of Assignment 1")
+#The first 6 rows of the dataframe
+print.data.frame(dataCar[1:6,])
+
+```
+
+**Description of the columns.**
+
+**veh_value: vehicle value in \$10000s**
+
+**exposure: maximum portion of the vehicle value the insurer may need to
+pay out in case of an incident**
+
+**claimcst0: claim amount (0 if no claim)**
+
+**clm: whether there was a claim during the 1 year duration**
+
+**numclaims: number of claims during the 1 year duration**
+
+**veh_body types:**
+
+**BUS = bus\
+CONVT = convertible\
+COUPE = coupe\
+HBACK = hatchback\
+HDTOP = hardtop\
+MCARA = motorized caravan\
+MIBUS = minibus\
+PANVN = panel van\
+RDSTR = roadster\
+SEDAN = sedan\
+STNWG = station wagon\
+TRUCK = truck\
+UTE = utility**
+
+**gender: F- female, M - male\
+\
+area: a factor with levels A,B,C,D,E, F**
+
+**agecat: age category, 1 (youngest), 2, 3, 4, 5, 6**
+
+**veh_age: vehicle age category, 1 (youngest), 2, 3, 4**
+
+**You can use either JAGS, Stan, or INLA for this question.**
+
+## **a)[10 marks] Fit a Bayesian logistic regression model on the dataset dataCar with**
+
+-   **clm as response,**
+
+-   **a link function of your choice,**
+
+-   **using veh_value, exposure, veh_body, veh_age, gender, area, and
+    agecat as covariates (you can use categorical covariates by
+    converting integers to factors if appropriate).**
+
+**Center and scale the non-categorical covariates.**
+
+**Choose your own prior distributions (do not use default priors), and
+explain the rationale your prior choices, and ensure that the posterior
+is not too sensitive to your prior choice [Hint: look at the induced
+prior on the linear predictor and on the response.]**
+
+**Compute the posterior means of the model parameters, and discuss the
+results.**
+
+```{r}
+# Check for missing values
+sum(is.na(dataCar))
+
+# Center and scale variables
+dataCar[, c("veh_value", "exposure",  "claimcst0")] <- 
+  scale(dataCar[, c("veh_value", "exposure",  "claimcst0")], 
+        center = TRUE, scale = TRUE)
+```
+
+Firstly, we checked for missing data. As there was none, we jumped to
+centering and scaling the non-categorical, non-binary variables
+(`veh_vehicle, exposure` and `claimcst0`). Centering and scaling makes
+the mean of these features be 0, with standard deviation 1.
+
+Next, we convert categorical values to factors.
+
+```{r}
+# Factor data
+dataCar[, "veh_body"] <- as.factor(dataCar[, "veh_body"])
+dataCar[, "gender"] <- as.factor(dataCar[, "gender"])
+dataCar[, "area"] <- as.factor(dataCar[, "area"])
+dataCar[, "agecat"] <- as.factor(dataCar[, "agecat"])
+dataCar[, "veh_age"] <- as.factor(dataCar[, "veh_age"])
+```
+
+```{r}
+# Susbset the required data
+data1a <- dataCar[, c("clm", "veh_value", "exposure", "veh_body", 
+                      "veh_age", "gender", "area", "agecat")]
+```
+
+```{r}
+# Set priors
+prior.beta.1a <- list(mean.intercept = 0, prec.intercept = 1e-6,
+                   mean = 0, prec = 1e-6)
+
+# Set formula
+formula.1a <- clm ~ 1 + veh_value + exposure + veh_body + veh_age + 
+  gender + area + agecat
+
+# Run model
+model.1a <- inla(formula.1a, data = data1a, family = "binomial",
+               control.family = list(link = "logit"),
+               control.fixed = prior.beta.1a,
+               control.compute = list(dic = TRUE,
+                                      return.marginals.predictor=TRUE,
+                                      cpo=TRUE, config = TRUE))
+
+summary(model.1a)
+```
+
+Explanation (min 300 characters in your own words, otherwise -5 marks
+for insufficient explanation):
+
+The code above defines the required model, using the logit link for a
+binomial family. We defined the priors to be `mean = 0` for both the
+intercept and the rest of the regression coefficients, with
+`precision = 1e-6`, because this is a standard for uninformative priors.
+
+Now, if we focus on the posterior means, there are a few things that
+stand out. First, by analysing `veh_value`, we see that it is positively
+associated with having a claim, as it would be expected. By studying
+`veh_type`, we observe that the Bus does not appear as a binary
+variable, meaning that it is taken as the reference factor. All other
+vehicle types have a negative posterior mean, meaning that, *ceteris
+paribus*, they will have less chances than the buses for a claim. This
+makes sense, as buses are on the road longer than any other type of
+vehicle, so their chances of having incidents is higher, therefore
+having higher probabilties for claims. We see that there are no big
+differences in the `veh_age` categories, as the means are all really
+close to 0. Note that `veh_age = 2` is the only that has a higher chance
+of claims than `veh_age = 1`. There are no significant differences
+across sex, although women expect slightly higher probabilities of
+claims than men. Moreover, it looks like `area = B` has the higher
+probabilities for a claim, while `area = D` the lowest. Lastly, it seems
+that the larger value for agecat, the lower expected chances for a
+claim, which could also be expected.
+
+To make sure that the posterior is not too sensitive to our prior
+choice, we decided to run a second regression with different priors, and
+check whether there any variations as a consequence of it.
+
+```{r}
+# Set priors
+prior.beta.1a_v2 <- list(mean.intercept = 0, prec.intercept = 1e-4,
+                   mean = 0, prec = 1e-4)
+
+
+# Run model
+model.1a_v2 <- inla(formula.1a, data = data1a, family = "binomial",
+               control.family = list(link = "logit"),
+               control.fixed = prior.beta.1a_v2,
+               control.compute = list(dic = TRUE, return.marginals.predictor=TRUE,
+                                      cpo=TRUE, config = TRUE))
+
+summary(model.1a_v2)
+```
+
+As it can be seen from the output above, there differences in the
+posterior means for the model, using different priors, is negligible.
+This, we conclude that the posterior is not too sensitive on the initial
+(and final) prior, and we are safe using them.
+
+The goodness-of-fit statistics, as the log-likelihood or the DIC score,
+indicate a good fit of the model to the data.
+
+## **b)[10 marks] Fit a Bayesian Poisson regression model on numclaims as response with**
+
+-   **log link function,**
+
+-   **using veh_value, exposure, veh_body, veh_age, gender, area, and
+    agecat as covariates.**
+
+**Center and scale the non-categorical covariates.**
+
+**Choose your own prior distributions (do not use default priors), and
+explain the rationale your prior choices, and ensure that the posterior
+is not too sensitive to your prior choice [Hint: look at the induced
+prior on the linear predictor and the response.]**
+
+**Compute the posterior means of the model parameters, and discuss the
+results.**
+
+Explanation (min 300 characters in your own words, otherwise -5 marks
+for insufficient explanation):
+
+```{r}
+# Subset data
+data1b <- dataCar[, c("numclaims", "veh_value", "exposure", "veh_body", 
+                      "veh_age", "gender", "area", "agecat")]
+
+```
+
+```{r}
+# Set priors
+prior.beta.1b <- list(mean.intercept = 0, prec.intercept = 1e-6,
+                   mean = 0, prec = 1e-6)
+
+# Define formula
+formula.1b <- numclaims ~ 1 + veh_value + exposure + veh_body + veh_age + gender + area + agecat
+
+# Run model
+model.1b <- inla(formula.1b, data = data1b, family = "poisson",
+              control.fixed = prior.beta.1b, control.family = list(link = "log"),
+              control.compute = list(dic = TRUE, return.marginals.predictor=TRUE,
+                                      cpo=TRUE, config = TRUE))
+
+summary(model.1b)
+```
+
+In this case, we run a Poisson regression model on the number of claims,
+using the log link function. Again, we set our priors (for both the
+intercept and the regression coefficients) to be `mean = 0` and
+`precision = 0`, as they are non-informative.
+
+Assessing the posterior means, we see a similar trend as in exercise
+1.a. Both `veh_value` and `exposure` are associated with higher number
+of claims, and so is `veh_body = Bus` in comparison with any other
+vehicle types. The area classified as B is associated with more claims,
+while area D is associated with the least. Lastly, the higher the age
+category, the lower expected claims.
+
+To show that the priors chosen do not affect the posterior means
+excessively, we run the model again with a different selection of priors
+and analyse the results.
+
+```{r}
+# Set priors
+prior.beta.1b_v2 <- list(mean.intercept = 0, prec.intercept = 1e-4,
+                   mean = 0, prec = 1e-4)
+
+
+# Run model
+model.1b_v2 <- inla(formula.1b, data = data1b, family = "poisson",
+              control.fixed = prior.beta.1b_v2, 
+              control.family = list(link = "log"),
+              control.compute = list(dic = TRUE, return.marginals.predictor=TRUE,
+                                      cpo=TRUE, config = TRUE))
+
+summary(model.1b_v2)
+```
+
+Similar results have been obtained by setting the precision prior to be
+1e-4. As the resulting posterior means are really similar to the
+previous ones, we conclude that the set of priors do not influence the
+posteriors largely, and so we are good to use them.
+
+## **c)[10 marks]** **Fit a zero-inflated Bayesian Poisson regression model (<https://en.wikipedia.org/wiki/Zero-inflated_model>) on**
+
+-   **numclaims as response,**
+
+-   **with log link function,**
+
+-   **using veh_value, exposure, veh_body, veh_age, gender, area, and
+    agecat as covariates.**
+
+**Center and scale the non-categorical covariates.**
+
+**Choose your own prior distributions (do not use default priors), and
+explain the rationale your prior choices, and ensure that the posterior
+is not too sensitive to your prior choice [Hint: look at the induced
+prior on the linear predictor and the response.]**
+
+**Compute the posterior means of the model parameters, and discuss the
+results.**
+
+```{r}
+# Set priors
+prior.beta.1c <- list(mean.intercept = 0, prec.intercept = 1e-6,
+                   mean = 0, prec = 1e-6)
+
+# Define formula
+formula.1c <- numclaims ~ 1 + veh_value + exposure + veh_body + veh_age + 
+  gender + area + agecat
+
+# Run model
+model.1c <- inla(formula.1c, data = data1b, family = "zeroinflatedpoisson1",
+              control.fixed = prior.beta.1c, control.family = list(link = "log"),
+              control.compute = list(dic = TRUE, return.marginals.predictor=TRUE,
+                                      cpo=TRUE, config = TRUE))
+
+summary(model.1c)
+```
+
+Explanation (min 300 characters in your own words, otherwise -5 marks
+for insufficient explanation):
+
+Now, we run a Zero-Inflated Poisson (ZIP) model. The same choice is done
+for priors as in the previous examples, as they are mean to be
+uninformative.
+
+The posterior means of this model are observed on the printed summary
+above. Unsurprisingly, the results are similar to those in exercise 1.b,
+as the ZIP model behaves similarly to the Poisson. This is true for all
+the posterior means in the model. In fact, by checking goodness-of-fit
+statistics, we see that the DIC and log-likelihood scores are really
+similar for the models, and indicate a good fit to the data.
+
+To assess the independence of the posterior means to the priors, we
+re-run the model with a lower precision as the prior for the regression
+coefficients.
+
+```{r}
+# Set priors
+prior.beta.1c_v2 <- list(mean.intercept = 0, prec.intercept = 1e-4,
+                   mean = 0, prec = 1e-4)
+
+# Run model
+model.1c_v2 <- inla(formula.1c, data = data1b, family = "zeroinflatedpoisson1",
+              control.fixed = prior.beta.1c_v2, 
+              control.family = list(link = "log"),
+              control.compute = list(dic = TRUE, return.marginals.predictor=TRUE,
+                                      cpo=TRUE, config = TRUE))
+
+summary(model.1c_v2)
+```
+
+Once again, the results did not change, so we are safe using the
+selected priors as the posterior is not too sensitive to their choice.
+
+## **d)[10 marks] Fit a new model on numclaims in terms of the same covariates to improve on the models in part b) or part c) by considering interactions between covariates, as well as random effects. Describe your new model and justify your choices.**
+
+**Choose your own prior distributions (do not use default priors), and
+explain the rationale your prior choices, and ensure that the posterior
+is not too sensitive to your prior choice [Hint: look at the induced
+prior on the linear predictor and the response.]**
+
+**Compute the posterior means of the model parameters, and discuss the
+results.**
+
+```{r}
+# Set priors
+prior.re <- list(prec = list(prior = "loggamma", param = c(0.001, 0.001)))
+prior.beta.1b <- list(mean.intercept = 0, prec.intercept = 1e-6,
+                   mean = 0, prec = 1e-6)
+# Define formula
+formula.1d <- numclaims ~ 1 + veh_value + exposure + veh_body + veh_age + 
+  gender + area + agecat + veh_value*area + exposure*agecat + exposure*area +
+  exposure*gender +  f(area, model = "iid", hyper = prior.re)
+
+# Run model
+model.1d <- inla(formula.1d, data = data1b, family = "poisson",
+              control.fixed = prior.beta.1b, control.family = list(link = "log"),
+              control.compute = list(dic = TRUE, return.marginals.predictor=TRUE,
+                                      cpo=TRUE, config = TRUE))
+
+summary(model.1d)
+```
+
+Explanation (min 300 characters in your own words, otherwise -5 marks
+for insufficient explanation):
+
+Above we redefined model B by adding interaction terms between variables
+and random effects. The chosen interaction terms were
+`veh_value*area, exposure*agecat, exposure*area` and `exposure*gender`.
+Exposure was associated with age category and area, as it makes sense
+analytically. It is logical that the older a driver is, the more
+experienced and the less amount the insurer has to pay by contract, so
+younger categories should (and are) associated with more claims. In
+terms of interaction between exposure and area, if some parts of a city
+are recognised as more dangerous or likely to have incidents, the
+exposure of the insurer might not be equal. It seems that higher
+exposure leads to a lower number of claims for each area, in comparison
+to area A. The interaction term between vehicle value and area can be
+justified as, depending on your area of residence, the expected value of
+your car might be affected (say, if a person lives in an area where car
+robbery is common, their car value might drop as insurer might believe
+their car had been stolen). The posterior mean for all these interaction
+terms is small, so there are no means to think these interactions have a
+large effect on the number of claims. Lastly, we interacted exposure and
+gender to check whether there were differences by gender, but there not
+seem to be relevant.
+
+The random effect is centered around area, and it tries to explain the
+differences between the categories that are not explained by the area.
+Even if this did not make a drastic change in out model posterior means,
+the standard deviation for these variables (and the intercept) increased
+a lot. The random effects are set to follow the "iid" model, and the
+priors are set to follow a loggamma distribution with coefficients
+(0.001, 0.001), as this is the standard for such parameters.
+
+Other than these, the results of the model were similar to the previous
+ones, but with an improved DIC and log-likelihood, which means that the
+new variables do help at explaining the variance in the data.
+
+To make sure that the posterior is not too sensitive to the prior
+choice, we re-run the model with a different selection of priors. We
+choose loggamma parameters to be (0.1, 0.1) this time, and the prior for
+the regression coefficients to have `mean = 0` and `precision = 1e-4`.
+
+```{r}
+# Set priors
+prior.re_v2 <- list(prec = list(prior = "loggamma", param = c(0.1, 0.1)))
+prior.beta.1b_v2 <- list(mean.intercept = 0, prec.intercept = 1e-4,
+                   mean = 0, prec = 1e-4)
+# Define formula
+formula.1d_v2 <- numclaims ~ 1 + veh_value + exposure + veh_body + veh_age + 
+  gender + area + agecat + veh_value*area + exposure*agecat + exposure*area +
+  exposure*gender +  f(area, model = "iid", hyper = prior.re_v2)
+
+# Run model
+model.1d_v2 <- inla(formula.1d, data = data1b, family = "poisson",
+              control.fixed = prior.beta.1b_v2, 
+              control.family = list(link = "log"),
+              control.compute = list(dic = TRUE, return.marginals.predictor=TRUE,
+                                      cpo=TRUE, config = TRUE))
+
+summary(model.1d_v2)
+```
+
+The results barely changed, although the standard deviations for the
+intercept and the area terms wre made smaller. In any case, the overall
+results and posterior means are similar to the calculated previously, so
+we are good to use those priors.
+
+## **e)[10 marks] Perform posterior predictive model checks for your models b, c, d (i.e. using replicates).**
+
+**As test functions, use the number of rows in the dataset with
+numclaims equal 0, 1, 2, 3, and 4 (5 test functions).**
+
+**Compute the RMSE values for predicting numclaims based on all 3
+models.**
+
+**Discuss the results.**
+
+```{r}
+# defining the Test functions
+get.n0 <- function(x) {return(sum(x==0))} 
+get.n1 <- function(x) {return(sum(x==1))} 
+get.n2 <- function(x) {return(sum(x==2))} 
+get.n3 <- function(x) {return(sum(x==3))} 
+get.n4 <- function(x) {return(sum(x==4))}
+
+true.n0 <- get.n0(dataCar$numclaims)
+true.n1 <- get.n1(dataCar$numclaims)
+true.n2 <- get.n2(dataCar$numclaims)
+true.n3 <- get.n3(dataCar$numclaims)
+true.n4 <- get.n4(dataCar$numclaims)
+```
+
+```{r}
+# Define sample size
+nsamp <- 1000
+n <- nrow(data1b)
+
+# Generate samples and posterior predictive distribution
+samp.1eb <- inla.posterior.sample(n = nsamp, result = model.1b)
+fittedval.1eb <- exp(inla.posterior.sample.eval(function(...) {Predictor}, 
+                                           samp.1eb))
+mean.pred.1eb <- mean(fittedval.1eb)
+
+yrep.1eb <- matrix(0, nrow = n, ncol = nsamp)
+for(row.num in 1:n){
+  yrep.1eb[row.num, ] <- fittedval.1eb[row.num, ] + 
+    rpois(n = nsamp , lambda = mean.pred.1eb)
+}
+
+# Get numcols = i for each 0-4
+yrep.1eb <- round(yrep.1eb)
+yrep.1eb.0 <- apply(yrep.1eb, 2, get.n0)
+yrep.1eb.1 <- apply(yrep.1eb, 2, get.n1)
+yrep.1eb.2 <- apply(yrep.1eb, 2, get.n2)
+yrep.1eb.3 <- apply(yrep.1eb, 2, get.n3)
+yrep.1eb.4 <- apply(yrep.1eb, 2, get.n4)
+
+
+# Plot histograms
+par(mfrow=c(3,2))
+
+hist(yrep.1eb.0, main = "Predictive distribution, numclaims = 0 (Model B)",
+     xlab = "# numclaims = 0") 
+abline(v = true.n0, col = "red") 
+
+hist(yrep.1eb.1, main = "Predictive distribution of numclaims = 1",
+     xlim = c(4000, 5000), xlab = "# numclaims = 1") 
+abline(v = true.n1, col = "red") 
+
+hist(yrep.1eb.2, main = "Predictive distribution of numclaims = 2",
+     xlim = c(100, 300), xlab = "# numclaims = 2") 
+abline(v = true.n2, col = "red") 
+
+hist(yrep.1eb.2, main = "Predictive distribution of numclaims = 3",
+     xlim = c(0, 200), xlab = "# numclaims = 3") 
+abline(v = true.n3, col = "red") 
+
+hist(yrep.1eb.4, main = "Predictive distribution of numclaims = 4", 
+     xlim = c(0, 3), xlab = "# numclaims = 4") 
+abline(v = true.n4, col = "red")
+```
+
+```{r}
+# Generate samples and posterior predictive distribution
+samp.1ec <- inla.posterior.sample(n = nsamp, result = model.1c)
+fittedval.1ec <- exp(inla.posterior.sample.eval(function(...) {Predictor}, 
+                                           samp.1ec))
+mean.pred.1ec <- mean(fittedval.1ec)
+
+yrep.1ec <- matrix(0, nrow = n, ncol = nsamp)
+for(row.num in 1:n){
+  yrep.1ec[row.num, ] <- fittedval.1ec[row.num, ] + 
+    rpois(n = nsamp , lambda = mean.pred.1ec)
+}
+
+# Get numcols = i for each 0-4
+yrep.1ec <- round(yrep.1ec)
+yrep.1ec.0 <- apply(yrep.1ec, 2, get.n0)
+yrep.1ec.1 <- apply(yrep.1ec, 2, get.n1)
+yrep.1ec.2 <- apply(yrep.1ec, 2, get.n2)
+yrep.1ec.3 <- apply(yrep.1ec, 2, get.n3)
+yrep.1ec.4 <- apply(yrep.1ec, 2, get.n4)
+
+
+# Plot histograms
+par(mfrow=c(3,2))
+
+hist(yrep.1ec.0, main = "Predictive distribution, numclaims = 0 (Model C)",
+     xlab = "# numclaims = 0", xlim = c(61000, 63500)) 
+abline(v = true.n0, col = "red") 
+
+hist(yrep.1ec.1, main = "Predictive distribution of numclaims = 1",
+     xlab = "# numclaims = 1", xlim = c(4000, 6500)) 
+abline(v = true.n1, col = "red") 
+
+hist(yrep.1ec.2, main = "Predictive distribution of numclaims = 2",
+     xlab = "# numclaims = 2") 
+abline(v = true.n2, col = "red") 
+
+hist(yrep.1ec.2, main = "Predictive distribution of numclaims = 3",
+     xlab = "# numclaims = 3", xlim = c(0, 390)) 
+abline(v = true.n3, col = "red") 
+
+hist(yrep.1ec.4, main = "Predictive distribution of numclaims = 4", 
+     xlab = "# numclaims = 4") 
+abline(v = true.n4, col = "red")
+```
+
+```{r}
+# Generate samples and posterior predictive distribution
+samp.1ed <- inla.posterior.sample(n = nsamp, result = model.1d)
+fittedval.1ed <- exp(inla.posterior.sample.eval(function(...) {Predictor}, 
+                                           samp.1ed))
+mean.pred.1ed <- mean(fittedval.1ed)
+
+yrep.1ed <- matrix(0, nrow = n, ncol = nsamp)
+for(row.num in 1:n){
+  yrep.1ed[row.num, ] <- fittedval.1ed[row.num, ] + 
+    rpois(n = nsamp , lambda = mean.pred.1ed)
+}
+
+# Get numcols = i for each 0-4
+yrep.1ed <- round(yrep.1ed)
+yrep.1ed.0 <- apply(yrep.1ed, 2, get.n0)
+yrep.1ed.1 <- apply(yrep.1ed, 2, get.n1)
+yrep.1ed.2 <- apply(yrep.1ed, 2, get.n2)
+yrep.1ed.3 <- apply(yrep.1ed, 2, get.n3)
+yrep.1ed.4 <- apply(yrep.1ed, 2, get.n4)
+
+
+# Plot histograms
+par(mfrow=c(3,2))
+
+hist(yrep.1ed.0, main = "Predictive distribution, numclaims = 0 (Model D)",
+     xlab = "# numclaims = 0", xlim = c(62700, 63250)) 
+abline(v = true.n0, col = "red") 
+
+hist(yrep.1ed.1, main = "Predictive distribution of numclaims = 1",
+     xlab = "# numclaims = 1", xlim = c(4300, 4800)) 
+abline(v = true.n1, col = "red") 
+
+hist(yrep.1ed.2, main = "Predictive distribution of numclaims = 2",
+     xlab = "# numclaims = 2", xlim = c(140, 280)) 
+abline(v = true.n2, col = "red") 
+
+hist(yrep.1ed.2, main = "Predictive distribution of numclaims = 3",
+     xlab = "# numclaims = 3", xlim = c(0, 230)) 
+abline(v = true.n3, col = "red") 
+
+hist(yrep.1ed.4, main = "Predictive distribution of numclaims = 4", 
+     xlab = "# numclaims = 4") 
+abline(v = true.n4, col = "red")
+```
+
+In the cells above these lines we have plotted, for each model, the
+estimated number of claims for each posterior sample, compared to the
+real observed data (red line in each histogram). The following results
+have been obtained: Model B (first plots) is the best at estimating
+number of claims = 0. Even if it slightly underestimates the observed
+`numclaims = 0`, model D (last plots) and especially model C (middle
+plots, missing by a few thousands) struggle much more. The three models
+underestimate `numclaims = 0`. Regarding `numclaims = 1`, the
+predictions are generally not bad although all models tend to
+overestimate the cases. This is, again, especially dramatic for Model C,
+which misses by a few thousands the true, observed number of
+`numcols = 1`. In terms of `numclaims = 2`, Models B and D understimate
+the true number of such `numclaims`, while Model C overestimates them.
+Nevertheless, in this last case, Model C is closer to the true value
+that either of Models B or D. The predictions for `numclaims = 3` is bad
+for the three models, which all largely overestimate the true number
+observed in the data, particularly Model C. Lastly, the three models
+tend to predict `numclaims = 4` to be 0, which is not far from the real
+value, 2. Even if the models rarely predicted 2, their forecasts are not
+far away, and since only two such observations appeared in 67856
+different data points, it is difficult for the models to be absolutely
+accurate.
+
+In general, we see that Models B and D behave similarly, while Model C
+usually acts the opposite way. Even if, in an absolute scale, the
+predictions are not too far off from what is observed in the data, the
+models rarely assess the true value correctly.
+
+Next, some more detailed analysis on how the models performed against
+the real value is printed:
+
+```{r}
+# Summary of differences
+
+# Proportions
+for (i in unique(data1b$numclaims)){
+  cat("\n\nThe following results are obtained when analysing numclaims = ", i, 
+      "\nThe difference between the observed proportion and Model B's \nproportion of numclaims = ", i, "is:",
+      sum(yrep.1eb == i)/length(yrep.1eb) - sum(data1b$numclaims == i)/dim(data1b)[1],
+      "\nThe difference between the observed proportion and Model C's \nproportion of numclaims = ", i, "is:",
+      sum(yrep.1ec == i)/length(yrep.1ec) - sum(data1b$numclaims == i)/dim(data1b)[1],
+      "\nThe difference between the observed proportion and Model D's \nproportion of numclaims = ", i, "is:",
+      sum(yrep.1ed == i)/length(yrep.1ed) - sum(data1b$numclaims == i)/dim(data1b)[1]
+      
+      
+  )}
+
+# Absolute differences
+for (i in unique(data1b$numclaims)){
+  cat("\n\nThe following results are obtained when analysing total number of numclaims = ", i, 
+      "\nThe difference of Model B's observed and estimated and number of numclaims = ", i, "is:",
+      sum(yrep.1eb == i)/nsamp - sum(data1b$numclaims == i),
+      "\nThe difference of Model C's observed and estimated and number of numclaims = ", i, "is:",
+      sum(yrep.1ec == i)/nsamp - sum(data1b$numclaims == i),
+      "\nThe difference of Model D's observed and estimated and number of numclaims = ", i, "is:",
+      sum(yrep.1ed == i)/nsamp - sum(data1b$numclaims == i)
+)}
+
+
+```
+
+In general, we see that the proportions at which each `numclaim` is
+present in real data, and its difference to the estimated proportions by
+the models, does not vary significantly across models. The performance
+of model B and D is almost identical, and Model C lies a bit behind.
+However, for `numclaims = 2`, Model C outperforms the others. After
+that, the total deviation for each model per `numclaim` value is
+printed, with decimals points as the posterior had 1000 samples, and it
+needed to be averaged.
+
+Next, we show the RMSE scores for each model:
+
+```{r}
+# RMSE
+cat("RMSE of Model B:", 
+    rmse(data1b$numclaims, model.1b$summary.fitted.values[,1]),
+    "\nRMSE of Model C:", 
+    rmse(data1b$numclaims, model.1c$summary.fitted.values[,1]),
+    "\nRMSE of Model D:", 
+    rmse(data1b$numclaims, model.1d$summary.fitted.values[,1]))
+```
+
+As seen above, the RMSEs of Models B and D are better than that of Model
+C, indicating better fitting of the data and a better capacity for
+predictions by the Poisson models. The scores for Model B and D are
+really similar, however Model D's is slightly better. This is good, as
+our objective in Model D was to add interaction terms and random effects
+tom improve model B, and we accomplished it.
+
+![](barcelona.jpg)
+
+# **Problem 2 - Barcelona study**
+
+**In this problem, we will use a dataset from the CitieS-Health project
+that provides insight into the impact of air pollution on humans. It is
+comprised of data collected in Barcelona, Spain, and examines various
+environmental variables, such as air pollution levels, and their effects
+on mental health and wellbeing. In addition to environmental factors,
+this dataset also captures self-reported survey data on mental health,
+physical activity, diet habits, and more. From performance in a Stroop
+test (a type of psychological test evaluating attention capacity and
+processing speed) to information on total noise exposure at 55 dB - this
+dataset contains interesting information to understand the link between
+air pollution and human health.**
+
+**We start by loading the dataset.**
+
+```{r}
+ study<-read.csv("Barcelona.csv")
+ head(study)
+```
+
+**Descriptions of some of the covariates:**
+
+| **Column name**                     | **Description**                                                                                    |
+|------------------------|------------------------------------------------|
+| **Person_ID**                       | ID of person filling out the survey (integer). Multiple rows for most persons, at different dates. |
+| **date_all**                        | Date of the survey. (Date)                                                                         |
+| **year**                            | Year of the survey. (Integer)                                                                      |
+| **month**                           | Month of the survey. (Integer)                                                                     |
+| **day**                             | Day of the survey. (Integer)                                                                       |
+| **dayoftheweek**                    | Day of the week of the survey. (Integer)                                                           |
+| **hour**                            | Hour of the survey. (Integer)                                                                      |
+| **sadness**                         | Sadness score. (Integer)                                                                           |
+| **wellbeing**                       | Self-reported survey responses regarding wellbeing. (Integer)                                      |
+| **energy**                          | Self-reported survey responses regarding energy levels. (Integer)                                  |
+| **stress**                          | Self-reported survey responses regarding stress levels. (Integer)                                  |
+| **sleep**                           | Self-reported survey responses regarding sleep quality. (Integer)                                  |
+| **hours_out**                       | Self-reported survey responses regarding time spent outdoors. (Integer)                            |
+| **computer_use**                    | Self-reported survey responses regarding computer use. (Yes/No)                                    |
+| **on_a\_diet**                      | Self-reported survey responses regarding diet. (Yes/No)                                            |
+| **alcohol**                         | Self-reported survey responses regarding alcohol consumption. (Yes/No)                             |
+| **drugs**                           | Self-reported survey responses regarding drug use. (Yes/No)                                        |
+| **sick**                            | Self-reported survey responses regarding illness. (Yes/No)                                         |
+| **other_factors**                   | Self-reported survey responses regarding other factors. (Yes/No)                                   |
+| **stroop_test_performance**         | Performance in the Stroop test. (Float)                                                            |
+| **no2bcn_24h**                      | Nitrogen dioxide (NO2) levels in Barcelona over 24 hours. (Float)                                  |
+| **no2bcn_12h**                      | Nitrogen dioxide (NO2) levels in Barcelona over 12 hours. (Float)                                  |
+| **no2gps_24h**                      | Nitrogen dioxide (NO2) levels in GPS locations over 24 hours. (Float)                              |
+| **no2gps_12h**                      | Nitrogen dioxide (NO2) levels in GPS locations over 12 hours. (Float)                              |
+| **no2bcn_12h_x30**                  | Nitrogen dioxide (NO2) levels in Barcelona over 12 hours multiplied by 30. (Float)                 |
+| **no2bcn_24h_x30**                  | Nitrogen dioxide (NO2) levels in Barcelona over 24 hours multiplied by 30. (Float)                 |
+| **no2gps_12h_x30**                  | Nitrogen dioxide (NO2) levels in GPS locations over 12 hours multiplied by 30. (Float)             |
+| **no2gps_24h_x30**                  | Nitrogen dioxide (NO2) levels in GPS locations over 24 hours multiplied by 30. (Float)             |
+| **min_gps**                         | Minimum GPS location. (Float)                                                                      |
+| **district**                        | District of Barcelona where the survey was conducted. (String)                                     |
+| **education**                       | Educational level of the participant. (String)                                                     |
+| **maxwindspeed_12h**                | Maximum wind speed over 12 hours. (Float)                                                          |
+| **access_greenbluespaces_300mbuff** | .........Access to green/blue spaces within a 300m buffer. (Yes/No)                                |
+| **microgram3**                      | Micrograms per cubic meter of pollutants. (Float)                                                  |
+| **age_yrs**                         | Age of the participant in years. (Integer)                                                         |
+| **yearbirth**                       | Year of birth of the participant. (Integer)                                                        |
+| **smoke**                           | Self-reported survey responses regarding smoking status. (Yes/No)                                  |
+| **gender**                          | Gender of the participant. (Woman/Man/Otra), with Otra=Other(i.e. non-binary).                     |
+| **hour_gps**                        | Hour of the GPS location. (Integer)                                                                |
+| **pm25bcn**                         | Particulate matter (PM2.5) levels in Barcelona. (Float)                                            |
+| **BCmicrog**                        | Black carbon (BC) levels in micrograms. (Float)                                                    |
+| **sec_noise55_day**                 | Seconds of noise over 55 minutes in a day. (Integer)                                               |
+| **sec_noise65_day**                 | Seconds of noise over 65 minutes in a day. (Integer)                                               |
+| **tmean_24h**                       | Mean temperature over 24 hours. (Float)                                                            |
+| **tmean_12h**                       | Mean temperature over 12 hours. (Float)                                                            |
+| **humi_24h**                        | Humidity over 24 hours. (Float)                                                                    |
+| **humi_12h**                        | Humidity over 12 hours. (Float)                                                                    |
+| **pressure_24h**                    | Pressure over 24 hours. (Float)                                                                    |
+| **pressure_12h**                    | Pressure over 12 hours. (Float)                                                                    |
+| **precip_24h**                      | Precipitation over 24 hours. (Float)                                                               |
+| **precip_12h**                      | Precipitation over 12 hours. (Float)                                                               |
+| **precip_12h_binary**               | Binary value for precipitation over 12 hours. (Integer)                                            |
+| **precip_24h_binary**               | Binary value for precipitation over 24 hours. (Integer)                                            |
+| **maxwindspeed_24h**                | Maximum wind speed over 24 hours. (Float)                                                          |
+
+**You can use either JAGS, Stan, or INLA for this question.**
+
+## **a)[10 marks] Fit a Bayesian linear regression model**
+
+-   **on the logarithm of stroop_test_performance as response,**
+
+-   **using the following covariates: gender, on_a\_diet, alcohol,
+    drugs, sick, other_factors, education, smoke, no2gps_24h,
+    maxwindspeed_24h, precip_24h, sec_noise55_day,\
+    access_greenbluespaces_300mbuff, age_yrs, tmean_24h\
+    (you can use categorical covariates by converting integers to
+    factors if appropriate).**
+
+**Center and scale the non-categorical covariates.**
+
+**Choose your own prior distributions (do not use default priors), and
+explain the rationale your prior choices, and ensure that the posterior
+is not too sensitive to your prior choice [Hint: look at the induced
+prior on the response.]**
+
+**Compute the posterior means of the model parameters, and interpret
+their meaning.**
+
+```{r}
+# Missing values
+sum(is.na(study))
+```
+
+```{r}
+# Subset data
+data2a <- study[, c("stroop_test_performance", "gender", "on_a_diet", "alcohol",
+                    "drugs", "sick", "other_factors", "education", "smoke",
+                    "no2gps_24h", "maxwindspeed_24h", "precip_24h",
+                    "sec_noise55_day", "access_greenbluespaces_300mbuff",
+                    "age_yrs", "tmean_24h")]
+
+# Transform data as required
+for (i in c("gender", "on_a_diet", "alcohol", "drugs", "sick", "other_factors",
+           "smoke", "education", "access_greenbluespaces_300mbuff")){
+  data2a[, i] <-  as.factor(data2a[, i])
+}
+
+data2a[, c("no2gps_24h", "maxwindspeed_24h", "precip_24h", "sec_noise55_day",
+           "age_yrs", "tmean_24h")] <- 
+  scale(data2a[, c("no2gps_24h","maxwindspeed_24h", "precip_24h", 
+                   "sec_noise55_day", "age_yrs", "tmean_24h")],  
+        center = T, scale = T)
+```
+
+```{r}
+# Define the linear model
+formula.2a <- log(stroop_test_performance) ~ 1 + gender + on_a_diet + alcohol +
+  drugs + sick + other_factors + education + smoke + no2gps_24h + 
+  maxwindspeed_24h + precip_24h + sec_noise55_day + 
+  access_greenbluespaces_300mbuff + age_yrs + tmean_24h
+
+
+# Define priors for hyperparameters
+prior.beta.2a <- list(mean.intercept = 0, prec.intercept = 1e-6,
+                      mean = 0, prec = 1e-6)
+prec.prior <- list(prec=list(prior = "loggamma", param = c(0.001, 0.001)))
+
+# Run model
+model.2a <- inla(formula.2a, data = data2a, control.fixed = prior.beta.2a, 
+                 control.family=list(hyper=prec.prior),
+                 control.compute=list(config = TRUE))
+
+
+# Display summary of the model
+summary(model.2a)
+```
+
+Explanation (min 300 characters in your own words, otherwise -5 marks
+for insufficient explanation):
+
+First, we loaded the data and looked for missing values. As there were
+none, we proceeded to subset the data and transform the required
+features. Then, we defined the required linear model, using priors with
+`mean = 0, precision = 1e-6` for all the coefficients in the model. We
+chose these priors as they are meant to be uninformative, and the
+objective is that the posterior samples are not too senstive to them. On
+the other hand, we defined a loggamma prior for the precision, whose
+parameters are (0.001, 0.001).
+
+The model shows the following results. Firstly, men are associated with
+higher performances in the Troop test. Being on a diet, not consuming
+drugs, and not being sick are also associated with higher performances,
+as it could be expected. On the other hand, it is surprising to see that
+being under alcohol effects and smoking lead to higher Troop test's
+scores. Another important factor is that higher education levels are
+associated with higher performances in the test, while age reduces the
+expected score. Other features contained in the dataset, like
+`no2gps_24h, tmean_24h` or `access_greenbluespaces_Yes` have barely no
+effect in the expected scores. Lastly, it could be expected to achieve
+better perfomances in the Stroop test in windy but dry days.
+
+To make sure the posteriors were not too sensitive to the prior choice,
+we re-run the same model with a different set of priors. In particular,
+now we set the prior for the precision to be loggamma(0.1, 0.1), and the
+rest of the and also use `mean = 0` and `precision = 1e-4` for the other
+coefficients.
+
+```{r warning=FALSE}
+# Define priors for hyperparameters
+prior.beta.2a_v2 <- list(mean.intercept = 0, prec.intercept = 1e-4,
+                      mean = 0, prec = 1e-4)
+prec.prior_v2 <- list(prec=list(prior = "loggamma", param = c(0.1, 0.1)))
+
+# Run model
+model.2a_v2 <- inla(formula.2a, data = data2a, control.fixed = prior.beta.2a_v2, 
+                 control.family=list(hyper=prec.prior_v2),
+                 control.compute=list(config = TRUE))
+
+
+# Display summary of the model
+summary(model.2a_v2)
+```
+
+From the previous output, we see that the changes from the original
+model were minimal, so we assume that the original priors were good, and
+the posterior was not strongly affected by the choice of those priors.
+
+## **b)[10 marks] Fit a Bayesian Poisson GLM**
+
+-   **for sadness as response,**
+
+-   **log link function,**
+
+-   **using the following covariates: gender, on_a\_diet, alcohol,
+    drugs, sick, other_factors, education, smoke, no2gps_24h,
+    maxwindspeed_24h, precip_24h, sec_noise55_day,
+    access_greenbluespaces_300mbuff, age_yrs, tmean_24h (you can use
+    categorical covariates by converting integers to factors if
+    appropriate).**
+
+**Center and scale the non-categorical covariates.**
+
+**Choose your own prior distributions (do not use default priors), and
+explain the rationale your prior choices, and ensure that the posterior
+is not too sensitive to your prior choice [Hint: look at the induced
+prior on the response.]**
+
+**Compute the posterior means of the model parameters, and interpret
+their meaning.**
+
+```{r}
+# Subset data
+data2b <- cbind(study$sadness, data2a)
+colnames(data2b)[1] <- "sadness"
+
+
+# Define the zero-inflated Poisson model formula
+formula.2b <- sadness ~ 1 + gender + on_a_diet + alcohol + drugs + sick + 
+  other_factors + education + smoke + no2gps_24h + maxwindspeed_24h +
+  precip_24h + sec_noise55_day + access_greenbluespaces_300mbuff + 
+  age_yrs + tmean_24h
+
+# Define priors
+prior.beta.2b <- list(mean.intercept = 0, prec.intercept = 1e-6,
+                   mean = 0, prec = 1e-6)
+
+
+# Run model
+model.2b <- inla(formula.2b, data = data2b, family = "poisson",
+               control.fixed = prior.beta.2b, control.family = list(link = "log"),
+               control.compute = list(dic = TRUE, return.marginals.predictor=TRUE,
+                                      cpo=TRUE, config = TRUE))
+
+# Display summary of the model
+summary(model.2b)
+```
+
+Explanation (min 300 characters in your own words, otherwise -5 marks
+for insufficient explanation):
+
+In this case, we fit a Poisson model for the sadness response in the
+data. Once again, our uninformative priors are chsoen to be with
+`mean = 0` and `precision = 1e-6` for all the coefficients in the
+regression.
+
+Now, we see that the expected sadness for men and women are similar, but
+is considerably lower for "other" responses. Being on a diet, not
+smoking, under drug effects not smoking or being sick are associated
+with higher sadness scores, perhaps surprisingly. There is an important
+difference in the eduaction effect, as people with university students
+tend to have higher sadness scores. Warmer temperatures seem to have an
+effect in reducing sadness, while the rest of the weather features have
+a small effect on this score.
+
+Again, in the aim of assuring that the choice of priors was good, we
+re-run the model with a different set (setting `precision = 1e-4)` and
+analyse results.
+
+```{r}
+prior.beta.2b_v2 <- list(mean.intercept = 0, prec.intercept = 1e-6,
+                   mean = 0, prec = 1e-6)
+
+
+# Run model
+model.2b_v2 <- inla(formula.2b, data = data2b, family = "poisson",
+               control.fixed = prior.beta.2b_v2, 
+               control.family = list(link = "log"),
+               control.compute = list(dic = TRUE, return.marginals.predictor=TRUE,
+                                      cpo=TRUE, config = TRUE))
+
+# Display summary of the model
+summary(model.2b_v2)
+```
+
+Once again, from the previous output we observe that the changes from
+the between the models in neglictible, so we assume that the original
+priors (and the last ones) were good, and the posterior was not too
+sensitive by the choice of those priors.
+
+## **c)[10 marks] Incorporate Person_ID as a random effects into the models a.) and b.).**
+
+**Choose your own prior distributions for this random effect (do not use
+default priors).**
+
+**Compare the posterior means of the parameter values with a) and b).**
+
+**Discuss the changes that happened due to using random effects.**
+
+```{r}
+# Subset data
+data2c <- cbind(study$Person_ID, data2b)
+colnames(data2c)[1] <- "Person_ID"
+
+# Define formula for linear regression model
+formula.2ca <- log(stroop_test_performance) ~ 1 + gender + on_a_diet + alcohol + 
+  drugs + sick + other_factors + education + smoke + no2gps_24h +
+  maxwindspeed_24h + precip_24h + sec_noise55_day + 
+  access_greenbluespaces_300mbuff + age_yrs + tmean_24h + 
+  f(Person_ID, model ="iid")
+
+
+# Define the Poisson model using the formula
+formula.2cb <- sadness ~ 1 + gender + on_a_diet + alcohol + drugs + sick +
+  other_factors + education + smoke + no2gps_24h + maxwindspeed_24h +
+  precip_24h + sec_noise55_day + access_greenbluespaces_300mbuff + age_yrs +
+  tmean_24h + f(Person_ID, model ="iid")
+
+
+# Run linear
+model.2ca <- inla(formula.2ca, data = data2c, control.fixed = prior.beta.2a,
+                 control.family = list(hyper = prec.prior),
+                 control.compute = list(dic = TRUE, 
+                                        return.marginals.predictor = TRUE,
+                                        cpo = TRUE, config = TRUE))
+summary(model.2ca)
+
+# Run Poisson
+model.2cb <- inla(formula.2cb, data = data2c, family = "poisson",
+                control.fixed = prior.beta.2b, control.family = list(link = "log"),
+                control.compute = list(dic = TRUE, return.marginals.predictor=TRUE,
+                                      cpo=TRUE, config = TRUE))
+summary(model.2cb)
+```
+
+Explanation (min 300 characters in your own words, otherwise -5 marks
+for insufficient explanation):
+
+In the cell above, we have added Person ID as random effects to both
+models A and B. The same uninformative priors have been used as the
+first time these models were run, in Question 2.a and Question 2.b, as
+we know they are uninformative and the posteriors are not too sensitive
+about them.
+
+Adding random effects has a big effect in the posterior means of both
+models shrinking all of them towards 0. As a consequence, the different
+statistics accounting for model fit (log-likelihood, DIC, ...) lead to
+lower results. Some further research should be done analysing these
+models to decide whether it is work to add random effects when trying to
+predict sadness, but the results look promising. More insight is given
+in Question 2.d.
+
+To make sure the chosen priors were still good to use under random
+effects, we re-run both models using the same alternative set of priors
+that were used in Question 2.a and Question 2.b.
+
+```{r}
+model.2ca_v2 <- inla(formula.2ca, data = data2c, control.fixed = prior.beta.2a_v2,
+                 control.family = list(hyper = prec.prior_v2),
+                 control.compute = list(dic = TRUE, 
+                                        return.marginals.predictor = TRUE,
+                                        cpo = TRUE, config = TRUE))
+summary(model.2ca_v2)
+
+# Run Poisson
+model.2cb_v2 <- inla(formula.2cb, data = data2c, family = "poisson",
+                control.fixed = prior.beta.2b_v2, 
+                control.family = list(link = "log"),
+                control.compute = list(dic = TRUE, return.marginals.predictor=TRUE,
+                                      cpo=TRUE, config = TRUE))
+summary(model.2cb_v2)
+```
+
+This time, the results for none of the models changed, so we claim that
+the chosen priors were good to carry out the analysis, as they did not
+interfere in the posterior.
+
+## **d)[10 marks] Do posterior predictive checks (i.e. using replicates) for the sadness score for your models with or without random effects. Explain the choice of test functions that you used.**
+
+**Compute the posterior means of the response variable using the
+original covariates, and use this to compute the RMSE values for both
+models (i.e. with, or without random effects).**
+
+**Discuss the results.**
+
+```{r}
+# Statistics
+cat("Model B:\nDIC:", model.2b$dic$dic,
+    "\nNSLCPO:", -sum(log(model.2b$cpo$cpo)),
+    "\nLog Marginal Likelihood:", model.2b$mlik[1],
+    "\nRMSE:", rmse(data2b$sadness, model.2b$summary.fitted.values[,1]))
+
+cat("\n\nModel C:\nDIC:", model.2cb$dic$dic,
+    "\nNSLCPO:", -sum(log(model.2cb$cpo$cpo)),
+    "\nLog Marginal Likelihood:", model.2cb$mlik[1],
+    "\nRMSE:", rmse(data2b$sadness, model.2cb$summary.fitted.values[,1]))
+
+```
+
+Above we see the observe the summary statistics for model B, and its
+respective model C, adding random effects. From the first sight, we see
+that the RMSE is better for model C, meaning that on average, the
+predictions are closer to real values of sadness. We also see that the
+scores for DIC and NSLCPO are lower (and therefore better) for Model C.
+These measures are similar to cross-validation type criteria, so getting
+better values lead us to thinking that Model C should be better at
+predicting sadness (as suggested by RMSE as well). On the other hand,
+the marginal likelihood is better for Model B. The likelihood is more
+sensitive to the choice of prior and less on the fit of the data. If our
+ultimately goal is predicting sadness, we should pay more attentiono to
+DIC and NSLCPO scores, and therefore favour model C.
+
+Next, we plot some posterior samples summary statistics from each model.
+
+```{r}
+# Set number of samples
+nsamp <- 10000
+
+# Rerun models and get sampels from posterior (10000)
+samp.2b <- inla.posterior.sample(nsamp, model.2b)
+samp.2c <- inla.posterior.sample(nsamp, model.2cb)
+
+# Fitted values
+fittedvalues.2b <- inla.posterior.sample.eval(function(...) {Predictor},
+samp.2b)
+fittedvalues.2c <- inla.posterior.sample.eval(function(...) {Predictor},
+samp.2c)
+
+
+# Replicate data
+yrep.2b <- matrix(0, nrow = dim(data2b)[1], ncol = nsamp)
+yrep.2c <- matrix(0, nrow = dim(data2c)[1], ncol = nsamp)
+
+# Add noise
+n <- dim(data2b)[1]
+for(row.num in 1:n){
+  yrep.2b[row.num, ] <- round(fittedvalues.2b[row.num, ]) + 
+    rpois(n = nsamp, lambda = mean(fittedvalues.2b))
+  
+  yrep.2c[row.num, ] <- round(fittedvalues.2c[row.num, ]) + 
+    rpois(n = nsamp, lambda = mean(fittedvalues.2c))
+} 
+```
+
+```{r}
+# Get true values
+true.min.2b <- min(data2b$sadness)
+true.max.2b <- max(data2b$sadness)
+true.median.2b <- median(data2b$sadness)
+
+true.min.2c <- min(data2c$sadness)
+true.max.2c <- max(data2c$sadness)
+true.median.2c <- median(data2c$sadness)
+```
+
+```{r}
+# Model B
+gen.min.2b <- apply(yrep.2b, 1, min)
+gen.max.2b <- apply(yrep.2b, 1, max)
+gen.median.2b <- apply(yrep.2b, 1, median)
+ 
+hist(gen.min.2b, main= "Minimum expected sadness (Model B)", 
+     xlab = "Minimum sadness")
+abline(v = true.min.2b, col = "red")
+
+hist(gen.max.2b, main= "Maximum expected sadness (Model B)", 
+     xlab = "Maximum sadness")
+abline(v = true.max.2b, col = "red")
+
+hist(gen.median.2b, main= "Median expected sadness (Model B)", xlim = c(3,7), 
+     xlab = "Median sadness")
+abline(v = true.median.2b, col = "red")
+```
+
+```{r}
+# Model C
+gen.min.2c <- apply(yrep.2c, 1, min)
+gen.max.2c <- apply(yrep.2c, 1, max)
+gen.median.2c <- apply(yrep.2c, 1, median)
+ 
+hist(gen.min.2c, main= "Minimum expected sadness (Model C)", 
+     xlab = "Median sadness")
+abline(v = true.min.2c, col = "red")
+
+hist(gen.max.2c, main= "Maximum expected sadness (Model C)", 
+     xlab = "Maximum sadness")
+abline(v = true.max.2c, col = "red")
+
+hist(gen.median.2c, main= "Median expected sadness (Model C)", xlim = c(3,7), 
+     xlab = "Median sadness")
+abline(v = true.median.2c, col = "red")
+```
+
+The previous plots show some summary statistics (maximum, minimum,
+median) for the posterior samples from models B and C. As seen, both
+models struggle predicting the mean, and they tend so have the
+distribution of sadness towards lowers scores in comparison to the real
+data observed (red line). On the other hand, model C does a relatively
+good job at predicting the minimum score, almost 50% of the times being
+correct in comparison to th real data, while model B usually tends to
+overestimate the minimum sadness score. Both models also struggle
+predicting the maximum sadness score, and they usually never predict 14,
+which is the maximum value present in the dataset. However, it could be
+expected that the models usually underpredict the maximum sadness, as 14
+is an extreme value and the model should predict those less often. In
+general, it is seen that the models predict lower values than the
+observed data, and the predictions are concentrated in the middle values
+more often.
+
+Note that the posterior predictions have been rounded, as the sadness
+scores answered in the form must take an integer, and no decimal values
+are allowed.
+
+## **e)[10 marks]**
+
+**Plot the posterior predictive distributions for
+stroop_test_performance and sadness for the random effect models in part
+c) for the following new person in the dataset:**
+
+**Person_ID=286, gender="Woman", on_a\_diet="Yes", alcohol="No",
+drugs="No", sick="No", other_factors="No", education="University",
+smoke="Yes", no2gps_24h=80, maxwindspeed_24h=10, precip_24h=50,\
+sec_noise55_day=10000, access_greenbluespaces_300mbuff="Yes",
+age_yrs=40, tmean_24h=25**
+
+**In the case of stroop_test_performance, plot the estimated density,
+while for sadness, plot a histogram.**
+
+**Compute the posterior predictive mean, and standard deviation.**
+
+**Discuss the results.**
+
+```{r}
+# Subset required data
+data2e <- study[, c("Person_ID", "sadness", "stroop_test_performance", "gender",
+                    "on_a_diet", "alcohol", "drugs", "sick", "other_factors",
+                    "education", "smoke", "no2gps_24h", "maxwindspeed_24h",
+                    "precip_24h", "sec_noise55_day",
+                    "access_greenbluespaces_300mbuff", "age_yrs", "tmean_24h")]
+
+# Define new person data
+data.new <-  data.frame(Person_ID=286,
+                     sadness= NA, 
+                     stroop_test_performance = NA,
+                     gender="Woman", 
+                     on_a_diet="Yes", 
+                     alcohol="No", 
+                     drugs="No", 
+                     sick="No", 
+                     other_factors="No", 
+                     education="University", 
+                     smoke="Yes", 
+                     no2gps_24h=80,
+                     maxwindspeed_24h=10,
+                     precip_24h=50,
+                     sec_noise55_day=10000, 
+                     access_greenbluespaces_300mbuff="Yes", 
+                     age_yrs=40, 
+                     tmean_24h=25)
+
+# Join data
+data.2e <- rbind(data2e, data.new)
+
+# Scale as required
+data.2e[, c("no2gps_24h", "maxwindspeed_24h", "precip_24h", "sec_noise55_day",
+           "age_yrs", "tmean_24h")] <- 
+  lapply(data.2e[, c("no2gps_24h", "maxwindspeed_24h", "precip_24h",
+                     "sec_noise55_day", "age_yrs", "tmean_24h")],scale)
+
+
+# Scale data as required
+for (i in c("gender", "on_a_diet", "alcohol", "drugs", "sick", "other_factors",
+           "smoke", "education", "access_greenbluespaces_300mbuff")){
+  data.2e[, i] <-  as.factor(data.2e[, i])
+}
+```
+
+```{r warning=FALSE}
+# Fit the models
+model.2ea <- inla(formula.2ca, data=data.2e, family="gaussian",
+                  control.fixed = prior.beta.2a,
+                  control.family = list(hyper=prec.prior),
+                  control.predictor=list(compute=TRUE,link=1),
+                  control.compute=list(dic = TRUE, return.marginals.predictor=TRUE,
+                                      cpo=TRUE, config = TRUE))
+
+
+model.2eb <- inla(formula.2cb, data=data.2e, family="poisson", 
+                  control.family = list(link="log"),
+                  control.fixed = prior.beta.2b,
+                  control.predictor=list(compute=TRUE, link=1),
+                  control.compute=list(dic = TRUE, return.marginals.predictor=TRUE,
+                                      cpo=TRUE, config = TRUE))
+
+# Set size of sampling
+nsamp <- 10000
+```
+
+```{r}
+# Model A
+# Generate posterior samples for the required person
+samp.2ea <- inla.posterior.sample(n = nsamp, result = model.2ea,
+                                  selection = list(Predictor = dim(data.2e)[1]))
+samp.2ea.pred <- unlist(lapply(samp.2ea, function(x)(x$latent[1])))
+
+# Add noise to the prediction
+theta.samp = unlist(lapply(samp.2ea, function(x)(x$hyperpar[1])))
+sig.samp = 1 / sqrt(theta.samp)
+samp.2ea.noise = exp(samp.2ea.pred + rnorm(n = nsamp , mean = 0 , sd = sig.samp))
+
+# Density
+plot(density(samp.2ea.noise),
+     main = "Troop test performance prediction for new person",
+     xlab = "Troop test performance")
+abline(v = mean(samp.2ea.noise), col = "red")
+
+# Mean and standar deviation
+cat("The posterior predictive mean is", mean(samp.2ea.noise),
+    "\nwith standard deviation", sd(samp.2ea.noise))
+```
+
+```{r}
+# Model B
+# Get posterior samples for the new person
+samp.2eb <- inla.posterior.sample(n = nsamp, result = model.2eb, 
+                                  selection = list(Predictor = dim(data.2e)[1]))
+samp.2eb.pred <- unlist(lapply(samp.2eb,function(x)(x$latent[1])))
+
+# Add noise to the estimation
+samp.2eb.noise <- samp.2eb.pred + rpois(n = nsamp, lambda = mean(samp.2eb.pred))
+
+# Histogram
+hist(round(samp.2eb.noise), main ="Sadness predictions for new person", 
+     xlab = "Sadness")
+abline(v = round(mean(samp.2eb.noise)), col = "red")
+
+# Mean and standar deviation
+cat("The posterior predictive mean is", mean(samp.2eb.noise) ,
+    "\nwith standard deviation", sd(samp.2eb.noise))
+```
+
+Explanation (min 300 characters in your own words, otherwise -5 marks
+for insufficient explanation):
+
+In the previous cells we predicted the expected Troop test score and
+sadness level of a hypothetical person given certain values that can be
+passed to our models defined in Question 2.d.
+
+In the first plot, we see the density of the expected Troop test scores,
+that peaks in a value close to 40. This median is slightly lower than
+the posterior predicted mean, calculated to be about 41.8. It is
+important to nota that the standard deviation was estimated as 9.9 , so
+the Troop test score is subject to variations, but the density does give
+a good idea on about which values the score should be.
+
+The last plot shows the estimated sadness rating that the hypothetical
+person would have rated them-self, presented in a histogram. We see that
+most of our (rounded predictions) estimated sadness to take levels 2 or
+3, with the posterior predictive mean being around 2.9, and with a
+standard deviation of around 1.25. These estimates make us believe that
+the hypothetical person will check as low-sadness, with really low
+chances of expressing sadness larger than 5, and possibly expressing
+sadness to be 1.
