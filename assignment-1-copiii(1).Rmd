@@ -1,0 +1,1321 @@
+---
+editor_options:
+  markdown:
+    wrap: 72
+output: pdf_document
+---
+
+**University of Edinburgh**
+
+**School of Mathematics**
+
+**Bayesian Data Analysis, 2022/2023, Semester 2**
+
+**Assignment 1**
+
+**IMPORTANT INFORMATION ABOUT THE ASSIGNMENT**
+
+**In this paragraph, we summarize the essential information about this
+assignment. The format and rules for this assignment are different from
+your other courses, so please pay attention.**
+
+**1) Deadline: The deadline for submitting your solutions to this
+assignment is the 6 March 12:00 noon Edinburgh time.**
+
+**2) Format: You will need to submit your work as 2 components: a PDF
+report, and your R Markdown (.Rmd) notebook. There will be two separate
+submission systems on Learn: Gradescope for the report in PDF format,
+and a Learn assignment for the code in Rmd format. You need to write
+your solutions into this R Markdown notebook (code in R chunks and
+explanations in Markdown chunks), and then select Knit/Knit to PDF in
+RStudio to create a PDF report.**
+
+![](knit_to_PDF.jpg){width="192"}
+
+**The compiled PDF needs to contain everything in this notebook, with
+your code sections clearly visible (not hidden), and the output of your
+code included. Reports without the code displayed in the PDF, or without
+the output of your code included in the PDF will be marked as 0, with
+the only feedback "Report did not meet submission requirements".**
+
+**You need to upload this PDF in Gradescope submission system, and your
+Rmd file in the Learn assignment submission system. You will be required
+to tag every sub question on Gradescope.**
+
+**Some key points that are different from other courses:**
+
+**a) Your report needs to contain written explanation for each question
+that you solve, and some numbers or plots showing your results.
+Solutions without written explanation that clearly demonstrates that you
+understand what you are doing will be marked as 0 irrespectively whether
+the numerics are correct or not.**
+
+**b) Your code has to be possible to run for all questions by the Run
+All in RStudio, and reproduce all of the numerics and plots in your
+report (up to some small randomness due to stochasticity of Monte Carlo
+simulations). The parts of the report that contain material that is not
+reproduced by the code will not be marked (i.e. the score will be 0),
+and the only feedback in this case will be that the results are not
+reproducible from the code.**
+
+![](run_all.jpg){width="375"}
+
+**c) Multiple Submissions are allowed BEFORE THE DEADLINE are allowed
+for both the report, and the code.\
+However, multiple submissions are NOT ALLOWED AFTER THE DEADLINE.\
+YOU WILL NOT BE ABLE TO MAKE ANY CHANGES TO YOUR SUBMISSION AFTER THE
+DEADLINE.\
+Nevertheless, if you did not submit anything before the deadline, then
+you can still submit your work after the deadline, but late penalties
+will apply. The timing of the late penalties will be determined by the
+time you have submitted BOTH the report, and the code (i.e. whichever
+was submitted later counts).**
+
+**We illustrate these rules by some examples:**
+
+**Alice has spent a lot of time and effort on her assignment for BDA.
+Unfortunately she has accidentally introduced a typo in her code in the
+first question, and it did not run using Run All in RStudio. - Alice
+will get 0 for the whole assignment, with the only feedback "Results are
+not reproducible from the code".**
+
+**Bob has spent a lot of time and effort on his assignment for BDA.
+Unfortunately he forgot to submit his code. - Bob will get no personal
+reminder to submit his code. Bob will get 0 for the whole assignment,
+with the only feedback "Results are not reproducible from the code, as
+the code was not submitted."**
+
+**Charles has spent a lot of time and effort on his assignment for BDA.
+He has submitted both his code and report in the correct formats.
+However, he did not include any explanations in the report. Charles will
+get 0 for the whole assignment, with the only feedback "Explanation is
+missing."**
+
+**Denise has spent a lot of time and effort on her assignment for BDA.
+She has submitted her report in the correct format, but thought that she
+can include her code as a link in the report, and upload it online (such
+as Github, or Dropbox). - Denise will get 0 for the whole assignment,
+with the only feedback "Code was not uploaded on Learn."**
+
+**3) Group work: This is an INDIVIDUAL ASSIGNMENT, like a 2 week exam
+for the course. Communication between students about the assignment
+questions is not permitted. Students who submit work that has not been
+done individually will be reported for Academic Misconduct, that can
+lead to serious consequences. Each problem will be marked by a single
+instructor, so we will be able to spot students who copy.**
+
+**4) Piazza: During the periods of the assignments, the instructor will
+change Piazza to allow messaging the instructors only, i.e. students
+will not see each others messages and replies.**
+
+**Only questions regarding clarification of the statement of the
+problems will be answered by the instructors. The instructors will not
+give you any information related to the solution of the problems, such
+questions will be simply answered as "This is not about the statement of
+the problem so we cannot answer your question."**
+
+**THE INSTRUCTORS ARE NOT GOING TO DEBUG YOUR CODE, AND YOU ARE ASSESSED
+ON YOUR ABILITY TO RESOLVE ANY CODING OR TECHNICAL DIFFICULTIES THAT YOU
+ENCOUNTER ON YOUR OWN.**
+
+**5) Office hours: There will be two office hours per week (Monday
+14:00-15:00, and Wednesdays 15:00-16:00) during the 2 weeks for this
+assignment. The links are available on Learn / Course Information. I
+will be happy to discuss the course/workshop materials. However, I will
+only answer questions about the assignment that require clarifying the
+statement of the problems, and will not give you any information about
+the solutions. Students who ask for feedback on their assignment
+solutions during office hours will be removed from the meeting.**
+
+**6) Late submissions and extensions: NO EXTENSIONS ARE ALLOWED FOR THIS
+ASSIGNMENT, AND THERE IS NO SUCH OPTION PROVIDED IN THE ESC SYSTEM.
+Students who have existing Learning Adjustments in Euclid will be
+allowed to have the same adjustments applied to this course as well, but
+they need to apply for this BEFORE THE DEADLINE on the website**
+
+<https://www.ed.ac.uk/student-administration/extensions-special-circumstances>
+
+**by clicking on "Access your learning adjustment". This will be
+approved automatically.**
+
+**Students who submit their work late will have late submission
+penalties applied by the ESC team automatically (this means that even if
+you are 1 second late because of your internet connection was slow, the
+penalties will still apply). The penalties are 5% of the total mark
+deduced for every day of delay started (i.e. one minute of delay counts
+for 1 day). The course instructors do not have any role in setting these
+penalties, we will not be able to change them.**
+
+```{r}
+rm(list = ls(all = TRUE))
+#Do not delete this!
+#It clears all variables to ensure reproducibility
+```
+
+```{r, include=FALSE}
+# options(tinytex.verbose = TRUE)
+```
+
+```{r}
+# install.packages("faux")
+
+```
+
+```{r}
+library(dplyr)
+library(rstan)
+library(stochvol)
+library(rjags)
+library(INLA)
+library("Metrics")
+library("mnormt")
+library(faux)
+library(fBasics)
+library(data.table)
+```
+
+![](Exchange-rate.jpg)
+
+**Problem 1**
+
+**In this problem, we study a dataset about currency exchange rates. The
+exrates dataset of the stochvol package contains the daily average
+exchange rates of 24 currencies versus the EUR, from 2000-01-03 until
+2012-04-04.**
+
+```{r}
+require(stochvol)
+
+data("exrates")
+
+#You may need to set the working directory first before loading the dataset
+setwd("D:\\Pablo\\Documents\\Universidad\\MASTER\\BayesianDA")
+
+#The first 6 rows of the dataframe
+print.data.frame(exrates[1:6,])
+
+cat(paste("Data from ", min(exrates$date)," until ",max(exrates$date)))
+```
+
+**As we can see, not all dates are included in the dataset. Some are
+missing, such as weekends, and public holidays.**
+
+**In this problem, we are going to fit a various stochastic volatility
+models on this dataset (see e.g.
+<https://www.jstor.org/stable/1392251>).**
+
+**a)[10 marks] Consider the following leveraged Stochastic Volatility
+(SV) model.**
+
+$\begin{aligned} y_t&=\beta_0+\beta_1 y_{t-1}+\exp(h_t/2)\epsilon_t \quad \text{for}\quad 1\le t\le T,\\ h_{t+1}&=\mu+\phi(h_t-\mu)+\sigma \eta_t\quad \text{for} \quad 0\le t\le T, \quad h_0\sim N(\mu, \sigma^2/(1-\phi^2)),\\(\epsilon_t,\eta_t)&\sim N\left(0, \Sigma_{\rho}\right)\quad \text{ for } \quad \Sigma_{\rho}=\left(\begin{matrix}1 & \rho\\ \rho & 1\end{matrix}\right). \end{aligned}$
+
+**Here** $t$ **is the time index,** $y_t$ **are the observations (such
+as daily USD/EUR rate),** $h_t$ **are the log-variance process,**
+$\epsilon_t$ **is the observation noise, and** $\eta_t$ **is the
+log-variance process noise (which are correlated, but independent for
+different values of** $t$**). The hyperparameters are**
+$\beta_0, \beta_1, \mu, \phi, \sigma, \rho$**.**
+
+**For stability, it is necessary to have** $\phi\in (-1,1)$**, and by
+the definition of correlation matrices, we have** $\rho\in [-1,1]$**.**
+
+**Implement this model in JAGS or Stan on the first 3 months of USD/EUR
+data from the dataset, i.e. from dates 2000-01-03 until 2000-04-02.**
+
+**Explain how did you choose priors for all parameters. Explain how did
+you take into account the days without observation in your model.**
+
+**Fit the model, do convergence diagnostics, print out the summary of
+the results, and discuss them.**
+
+\# Select rows from dates 2000-01-03 until 2000-04-02
+
+last_date \<- as.Date("00/04/02", "%y/%m/%d")
+
+df \<- exrates[exrates\$date \< last_date, ]
+
+**Make sure that the Effective Sample Size is at least 1000 for all 6
+hyperparameters (you need to choose burn-in and number of steps
+appropriately for this).**
+
+```{r}
+data("exrates") # Load data
+data <- exrates 
+
+last_date <- as.Date("00/04/02", "%y/%m/%d")
+df <- exrates[exrates$date < last_date, ] #Select required data
+
+
+model_string1a = "model{
+  # prior parameter
+  beta0 ~ dnorm(0, 0.01)
+  beta1 ~ dnorm(0, 0.01)
+  mu ~ dnorm(0, 0.01)
+  phi ~ dunif(-1, 1)
+  rho ~ dunif(-1, 1)
+  
+  tau ~ dgamma(0.1, 0.1)
+  sigma <- pow(tau, -1/2)
+  
+  
+  # SV model
+  h0 ~ dnorm(mu, (1-phi*phi)*tau)
+  
+  h[1] ~ dnorm(mu + phi*(h0 - mu), (1 - phi*phi)*tau)
+  for (i in 2:(n+1)){
+    h.mu[i] <- mu + phi*(h[i-1] - mu)
+    h[i] ~ dnorm(h.mu[i], (1 - phi*phi)*tau)
+  }
+  
+  y[1] ~ dnorm(0, 1)
+  yrep[1] ~ dnorm(0, 1)
+  
+  for (i in 2:n){
+    y.mu[i] <- beta0 + beta1*y[i-1] + rho/sigma*exp(h[i]/2) *
+              (h[i+1]-mu-phi*(h[i]-mu))
+    y.var[i] <- exp(h[i])
+    y[i] ~ dnorm(y.mu[i], pow(y.var[i], -1)*(1/(1-rho*rho)))
+    
+    #replicates
+    yrep[i] ~ dnorm(y.mu[i], pow(y.var[i], -1)*(1/(1-rho*rho)))
+  }
+
+
+}"
+  
+
+n = length(df$USD)
+y = df$USD
+y_centered = (y - mean(y)) / sqrt(var(y)) #center the data
+
+
+cat(model_string1a,file={f <- tempfile()})
+
+model1a=jags.model(textConnection(model_string1a),data = list(n=n,y=y_centered),
+                 n.chains=15)
+
+update(model1a,10000)
+
+res0 = coda.samples(model1a,
+                    variable.names=c("beta0", "beta1",'sigma','mu','phi','rho'),
+                    n.iter=10000, n.thin=3)
+
+ 
+summary(res0)
+```
+
+```{r}
+########## CONVERGENCE DIAGNOSTICS
+
+# Effective sample size (Objective: > 1000)
+effectiveSize(res0)
+
+# Gelman - Rubin diagnostic tests (Rhat)
+gelman.plot(res0)
+gelman.diag(res0)
+
+#Graphical methods (Traceplots, density plots)
+plot(res0)
+```
+
+In this setting, we have decided priors for the following parameters:
+$\sigma$, $\mu$, $\beta_0$ and $\beta_1$ . As we had no information
+about them, the decision was to initialise them as parameters with
+normal distribution, mean 0 and low precision ($\tau = 0.01$). Precision
+is the inverse of the variance, $\tau = 1/\sigma^2$ . Moreover, $\phi$
+has been initialised as an uniformly distributed variable ,
+$\phi \sim U[-1, 1]$. The correlation parameter $\rho$ is forced to be
+in the range $[-1, 1]$.
+
+The dataset has no days without observations, aside from the weekends.
+The exchange rates do not change over the weekend days, so the decision
+made was to ignore these dates and treat the data as a continuum with no
+missing values. Aside from the weekends exchange rate, there are no
+other missing values in the dataset.
+
+The model was fitted by passing centered data on the exchange rates
+between Euro and US dollars over the period ranging from 2000-01-03 to
+2000-04-02. In the model summary shown above we can see the posterior
+point estimates for the model parameters. $\mu$ has the highest mean, so
+it can be argued that it will have the largest effect on estimating the
+exchange rates in the next time step. The results have to be taken
+carefully, as it can be the case that the estimated mean of the
+parameter is small compared to its standard deviation (as it is the case
+for $\rho$).
+
+After fitting the model, we have carried out some convergence
+diagnostics. As seen from the above code, the effective sample size of
+all the hyperparameters ($\beta_0$, $\beta_1$, $\sigma$, $\mu$, $\rho$,
+$\phi$) is larger than 1000. In the case of the Gelman-Rubin
+diagnostics, we see that the point estimates and upper confidence
+intervals are equal to (or extremely close to) 1 for all
+hyperparameters. The traceplots show that there has been a good mixing.
+Thus, we can say that the model has passed all the convergence
+diagnostic tests.
+
+**b)[10 marks] In practice, one often encounters outliers in exchange
+rates. These can be sometimes modeled by assuming Student's t
+distribution in the observation errors (i.e.** $\epsilon_t$). **The
+robust leveraged SV model can be expressed as**
+
+$\begin{aligned} y_t&=\beta_0+\beta_1 y_{t-1}+\exp(h_t/2)\epsilon_t \quad \text{for}\quad 1\le t\le T,\\ h_{t+1}&=\mu+\phi(h_t-\mu)+\sigma \eta_t\quad \text{for} \quad 0\le t\le T, \quad h_0\sim N(\mu, \sigma^2/(1-\phi^2)),\\ \eta_t&\sim N(0,1)\\ \epsilon_t|\eta_t&\sim t_{\nu}(\rho \eta_t ,1). \end{aligned}$
+
+**Here** $\nu$ **is the degrees of freedom parameter (unknown).**
+
+**Implement this model in JAGS or Stan on the first 3 months of USD/EUR
+data from the dataset.**
+
+**Explain how did you choose priors for all parameters. Explain how did
+you take into account the days without observation in your model.**
+
+**Fit the model, do convergence diagnostics, print out the summary of
+the results, and discuss them.**
+
+**Make sure that the Effective Sample Size is at least 1000 for all 6
+hyperparameters (you need to choose burn-in and number of steps
+appropriately for this).**
+
+```{r}
+data("exrates") # Re-load data
+data <- exrates 
+
+last_date <- as.Date("00/04/02", "%y/%m/%d") #Select required time interval
+df <- exrates[exrates$date < last_date, ]
+
+model_string1b = "model{
+  # prior parameter
+  beta0 ~ dnorm(0, 0.01)
+  beta1 ~ dnorm(0, 0.01)
+  mu ~ dnorm(0, 0.01)
+  phi ~ dunif(-1, 1)
+  rho ~ dunif(-1, 1)
+  
+  tau ~ dgamma(0.1, 0.1)
+  sigma <- pow(tau, -1/2)
+  
+  
+  # SV model
+  h0 ~ dnorm(mu, (1-phi*phi)*tau)
+  
+  h[1] ~ dnorm(mu + phi*(h0 - mu), (1 - phi*phi)*tau)
+  for (i in 2:(n+1)){
+    h.mu[i] <- mu + phi*(h[i-1] - mu)
+    h[i] ~ dnorm(h.mu[i], (1 - phi*phi)*tau)
+  }
+  
+  y[1] ~ dnorm(0, 1)
+  yrep[1] ~ dnorm(0, 1)
+  
+  
+  df <- length(y) - 1
+  
+  for (i in 2:n) {
+     eta[i] ~ dnorm(0,1)
+     y.sigma2[i] <- 1/(exp(h[i]))
+     
+     y[i] ~ dt(beta0 + beta1*(y[i-1])+exp(0.5*h[i])*rho*eta[i],y.sigma2[i], df)
+     
+     yrep[i] ~  dt(beta0 + beta1*(y[i-1])+exp(0.5*h[i])*rho*eta[i],y.sigma2[i], df)
+
+   }
+
+}"
+  
+
+n = length(df$USD)
+y = df$USD
+y_centered = (y - mean(y)) / sqrt(var(y)) #center data
+
+
+cat(model_string1b,file={f <- tempfile()})
+
+model1b=jags.model(textConnection(model_string1b),data = list(n=n,y=y_centered),
+                 n.chains=15)
+
+update(model1b,10000)
+
+res1b = coda.samples(model1b,
+                    variable.names=c("beta0", "beta1",'sigma','mu','phi','rho'),
+                    n.iter=10000, n.thin=3)
+
+ 
+summary(res1b)
+```
+
+```{r}
+########## CONVERGENCE DIAGNOSTICS
+
+#EFFECTIVE SAMPLE SIZE (> 1000)
+effectiveSize(res1b)
+
+#GELMAN RUBIN DIAGNOSTIC TEST (Rhat)
+gelman.plot(res1b)
+gelman.diag(res1b)
+#GRAPHICAL METHODS (TRACEPLOTS, density plots)
+plot(res1b)
+```
+
+For this part, we have chosen the same priors as before. As we do not
+have any previous information, the parameters are set to be normally
+distributed, with a mean of 0 and a low precision (thus, high variance).
+Both $\phi$ and $\rho$ are distributed as in the previous exercise as
+well. The degrees of freedom for the Student t distribution has been
+chosen to be $df = \# observations - 1$.
+
+As well as in the previous question, we have ignored the dates with
+missing observations in the dataset. These days correspond to weekend
+dates, during which the exchange rates are kept frozen. Thus, we can
+treat the data as a continuum.
+
+As before, we have fitted the data for the required time, period ranging
+from 2000-01-03 to 2000-04-02, and centered observations. It can be
+observed in the summary printed above that the posterior means of the
+parameters are similar to the ones in part a). Similarly, $\mu$ still
+has the largest magnitude out of all the other variables.
+
+After fitting the model, we have carried out some convergence
+diagnostics. As seen from the above code, the effective sample size of
+all the hyperparameters ($\beta_0$, $\beta_1$, $\sigma$, $\mu$, $\rho$,
+$\phi$) is larger than 1000. In the case of the Gelman-Rubin
+diagnostics, we see that the point estimates and upper confidence
+intervals are equal to (or extremely close to) 1 for all
+hyperparameters. The traceplots show that there has been a good mixing.
+Thus, we can say that the model has passed all the convergence
+diagnostic tests.
+
+**c)[10 marks]**
+
+**Perform posterior predictive checks on both models a) and b). Explain
+how did you choose the test functions.**
+
+**Discuss the results.**
+
+```{r}
+
+# Model 1a checks
+samplesthin1a <- coda.samples(model1a,variable.names = c("yrep"),
+                              n.iter=10000,thin=50) #re-sample
+
+yrep1a <- samplesthin1a[[1]]
+
+yrepmina <- apply(yrep1a,1,min) #Produce minimum Y and plot distribution
+hist(yrepmina,col="gray40", main="Predictive distribution for minimum")
+abline(v=min(y_centered),col="blue",lwd=2)
+
+yrepmaxa <- apply(yrep1a,1,max) #Produce maximum Y and plot distribution
+hist(yrepmaxa,col="gray40", main="Predictive distribution for maximum")
+abline(v=max(y_centered),col="blue",lwd=2)
+
+yrepmediana <- apply(yrep1a,1,median) #Produce median Y and plot distribution
+hist(yrepmediana,col="gray40", main="Predictive distribution for median")
+abline(v=median(y_centered),col="blue",lwd=2)
+
+yrepskewnessa <- apply(yrep1a,1,skewness) #Evaluate skewness
+hist(yrepskewnessa,col="gray40", main="Predictive distribution for skewness")
+abline(v=skewness(y_centered),col="blue",lwd=2)
+
+yrepkurtosisa <- apply(yrep1a,1,kurtosis) #Evaluate kurtosis
+hist(yrepkurtosisa,col="gray40", main="Predictive distribution for kurtosis")
+abline(v=median(y_centered),col="blue",lwd=2)
+```
+
+In the cell above we carried out posterior predictive checks for model
+1.a. These checks do not detect any major issues in the priors. However,
+some further analysis could be conducted to assure there are no problems
+with the kurtosis.
+
+```{r}
+# Checks for model 1b
+
+samplesthin1b <- coda.samples(model1b,variable.names = c("yrep"),n.iter=10000,thin=50)
+
+yrep1b <- samplesthin1b[[1]]
+yrepminb <- apply(yrep1b,1,min)
+hist(yrepminb,col="gray40", main="Predictive distribution for minimum")
+abline(v=min(y_centered),col="blue",lwd=2)
+
+yrepmaxb <- apply(yrep1b,1,max)
+hist(yrepmaxb,col="gray40", main="Predictive distribution for maximum")
+abline(v=max(y_centered),col="blue",lwd=2)
+
+yrepmedianb <- apply(yrep1b,1,median)
+hist(yrepmedianb,col="gray40", main="Predictive distribution for median")
+abline(v=median(y_centered),col="blue",lwd=2)
+
+yrepskewnessb <- apply(yrep1b,1,skewness)
+hist(yrepskewnessb,col="gray40", main="Predictive distribution for skewness")
+abline(v=skewness(y_centered),col="blue",lwd=2)
+
+yrepkurtosisb <- apply(yrep1b,1,kurtosis)
+hist(yrepkurtosisb,col="gray40", main="Predictive distribution for kurtosis")
+abline(v=median(y_centered),col="blue",lwd=2)
+```
+
+In the cell above we carried out posterior predictive checks for model
+1.b. These checks do not detect any major issues in the priors. However,
+and similar to the results produced by model 1.a), further analysis
+could be conducted to assure there are no problems with the kurtosis.
+
+These five functions (max, min, median, skewness and kurtosis) have been
+chosen to assure a general overview analysis of the data, priors and
+distributions. By plotting the distributions and the real value of each
+function (represented by the blue line) in the observed data, it can be
+quickly observed whether there is a major problem affecting the models
+that have been defined. In our case (except for kurtosis, slightly
+deviated), the observed values for each statistic match the mode of
+their respective distributions.
+
+**d)[10 marks]**
+
+**Based on your models a) and b), plot the posterior predictive
+densities of the USD/EUR rate on the dates 2000-04-03, 2020-04-04 and
+2020-04-05 (the next 3 days after the period considered). Compute the
+posterior means and 95% credible intervals. Discuss the results.**
+
+```{r}
+
+last_date <- as.Date("00/04/05", "%y/%m/%d") #Get required data
+df2 <- exrates[exrates$date < last_date, ]
+n <- length(df2$USD)
+
+y <- df2$USD
+y_centered <- (y - mean(y)) / sqrt(var(y)) #center data
+y_centered_copy <- y_centered
+y_centered_copy[65] <- NA #set NAs as required
+y_centered_copy[66] <- NA
+y_centered_copy[67] <- NA
+
+
+# Model 1.a
+
+cat(model_string1a,file={f <- tempfile()})
+
+model1d=jags.model(textConnection(model_string1a),data = list(n=n,
+                                                              y=y_centered_copy),
+                 n.chains=15)
+
+update(model1d,10000)
+
+res1d = coda.samples(model1a,
+                    variable.names=c("yrep"),
+                    n.iter=10000, n.thin=3)
+summary(res1d)
+
+
+```
+
+The posterior means for the last three days are, approximately (can
+change with a new run of the MCMC chains):
+
+2000/04/03 -\> -0.99413 (95% CI: -1.61596, -0.330211)
+
+2000/04/04 -\> -1.25934 (95% CI: -1.85895, -0.648683)
+
+2000/04/05 -\> -1.30252 (95% CI: -1.90519, -0.697029)
+
+\*\*The mean value is calculated from the corresponding "Mean" point
+estimate, in the first summary printed ("1. Empirical Mean and...). The
+CI intervals are extracted from the second print ("2. Quantiles for each
+variable), by getting quatiles 2.5% and 97.5%).
+
+```{r}
+# Model 1.b
+
+cat(model_string1b,file={f <- tempfile()})
+
+model1d_b=jags.model(textConnection(model_string1b),data = list(n=n,
+                                                              y=y_centered_copy),
+                 n.chains=15)
+
+update(model1d_b,10000)
+
+res1d = coda.samples(model1b,
+                    variable.names=c("yrep"),
+                    n.iter=10000, n.thin=3)
+summary(res1d)
+
+```
+
+The posterior means for the last three days are, approximately (can
+change with a new run of the MCMC chains):
+
+2000/04/03 -\> -0.999708 (95% CI: -1.64636, -0.33004)
+
+2000/04/04 -\> -1.261271 (95% CI: -1.86989, -0.64480)
+
+2000/04/05 -\> -1.302915 (95% CI: -1.91327, -0.68787)
+
+Both models agree that the value of the dollar is going to be reducing
+in the following days. Moreover, it is going to be yielding a value
+lower than the average over the previous three months. The actual value
+of the dollar cannot be told, as we centered the data. Thus, the
+predictions obtained are regarding centered data itself.
+
+**e)[10 marks]**
+
+**In this question, we are going to look use a multivariate stochastic
+volatility model with leverage to study the USD/EUR and GBP/EUR exchange
+rates jointly. The model is described as follows,**
+
+$\begin{aligned}\boldsymbol{y}_t&=\boldsymbol{\beta}_0+\boldsymbol{\beta}_1 \boldsymbol{y}_{t-1}+\exp(h_t/2)\boldsymbol{\epsilon}_t \quad \text{for}\quad 1\le t\le T,\\ \boldsymbol{h}_{t+1}&=\boldsymbol{\phi}(\boldsymbol{h}_t)+\boldsymbol{\eta}_t\quad \text{for} \quad 0\le t\le T, \quad h_0\sim N(0, I),\\ (\epsilon_t,\eta_t)&\sim N\left(0, \Sigma\right).\end{aligned}$
+
+**Here I denotes the 2 x 2 identity matrix,**
+$\boldsymbol{y}_t, \boldsymbol{\beta}_0, \boldsymbol{h}_t, \boldsymbol{\eta}_t, \boldsymbol{\epsilon}_t$
+**are 2 dimensional vectors,** $\boldsymbol{\beta}_1$ **and**
+$\boldsymbol{\phi}$ **are 2 x 2 matrices,** $\boldsymbol{\Sigma}$ **is a
+4 x 4 covariance matrix. At each time step** $t$**, the two components
+of** $y_t$ **will be used to model the USD/EUR and GBP/EUR exchange
+rates, respectively.**
+
+**Implement this model in JAGS or Stan.**
+
+\*\*Discuss your choices for priors for every parameter [Hint: you can
+use Wishart or scaled Wishart priors for\*\*\*\* $\boldsymbol{\Sigma}$,
+\*\*see
+<https://www.stats.ox.ac.uk/~nicholls/MScMCMC15/jags_user_manual.pdf> ,
+<https://mc-stan.org/docs/2_19/functions-reference/wishart-distribution.html>].
+
+**Fit the model, do convergence diagnostics, print out the summary of
+the results, and discuss them.**
+
+```{r}
+
+```
+
+![](nba.jpg)
+
+**Problem 2 - NBA data**
+
+**In this problem, we are going to construct a predictive model for NBA
+games.**
+
+**We start by loading the dataset.**
+
+```{r}
+games<-read.csv("games.csv")
+teams<-read.csv("teams.csv")
+```
+
+**games.csv contains the information about games such as GAME_DATE,
+SEASON, HOME_TEAM_ID, VISITOR_TEAM_ID, PTS_home (final score for home
+team) and PTS_away (final score for away team).**
+
+**teams.csv contains the names of each team, i.e. the names
+corresponding to each team ID.**
+
+**We are going to fit some Bayesian linear regression models on the
+scores of each team.**
+
+**You can use either INLA, JAGS or Stan.**
+
+**a)[10 marks]**
+
+**The dataset contains data from 20 seasons, but we are going to focus
+on only one, the 2021 season.\
+Please only keep games where SEASON is 2021 in the dataset, and remove
+all other seasons.\
+Please order the games according to the date of occurrence (they are not
+ordered like that in the dataset).**
+
+**The scores are going to be assumed to follow a linear Gaussian
+model,**
+
+$$S_g^{H}\sim N(\mu_{g}^{H},\sigma^2), \quad S_g^{A}\sim N(\mu_{g}^{A}, \sigma^2).$$
+
+**Here** $S_g^H$ **denotes the final score of the home team in game**
+$g$**, and** $S^A_g$ **denotes the final score of the away team in
+game** $g$**.**
+
+**Note that the true scores can only take non-negative integer values,
+so the Gaussian distribution is not perfect, but it can still be used
+nevertheless.**
+
+**The means for the scores are going to be modeled as a combination of
+three terms: attacking strength, defending ability, and whether the team
+is playing at home, or away. For each team, we denote their attacking
+strength parameter by** $a_{team}$**, their defending strength parameter
+by** $d_{team}$**, and the effect of playing at home as** $h$**. This
+quantifies the effect of playing at home on the expected number of goals
+scored. Our model is the following (**$\mu_g^{H}$ **is for the goals
+scored by the home team, and is** $\mu_g^{A}$ **is for the away team):**
+
+$\begin{aligned} \mu_{g}^{H}&= \beta_0+a_{home.team}+d_{away.team}+h\\ \mu_{g}^{A}&= \beta_0+a_{away.team}+d_{home.team} \end{aligned}$
+
+**Implement this model. Select your own prior distributions for the
+parameters, and discuss the reason for using those priors.**
+
+**Obtain the summary statistics for the posterior distribution of the
+model parameters.**
+
+**Evaluate the root mean square error (RMSE) of your posterior means
+versus the true scores.**
+
+**Interpret the results.**
+
+```{r}
+gamess <- subset(games, games$SEASON == 2021) #get required data
+gamess <- gamess[order(gamess$GAME_DATE_EST),] #order data
+```
+
+```{r}
+home_ids <- teams[c("NICKNAME","TEAM_ID")] #map names and teams' id
+colnames(home_ids) <- c("HOME_NICKNAME","HOME_TEAM_ID")
+away_ids <- teams[c("NICKNAME","TEAM_ID")]
+colnames(away_ids) <- c("AWAY_NICKNAME",'AWAY_TEAM_ID')
+
+data_m2 <- merge(gamess,home_ids,by='HOME_TEAM_ID') #merge nicknames in the main dataset
+data_m3 <- merge(data_m2,away_ids,by.x='VISITOR_TEAM_ID',by.y = 'AWAY_TEAM_ID')
+data_m3 <- data_m3[order(data_m3$GAME_DATE_EST),]
+final_data <- data_m3 
+
+
+
+y <- c(final_data$PTS_home, final_data$PTS_away) #make a vector of all the points scored in the season
+
+G <- nrow(final_data)
+
+HT_char <- as.character(final_data$HOME_NICKNAME) #produce attack and defense                                                         factors by factoring teams names
+AT_char <- as.character(final_data$AWAY_NICKNAME)
+attack <- as.factor(c(HT_char,AT_char))
+defense <- as.factor(c(AT_char,HT_char))
+```
+
+```{r}
+##################### Model 2a
+
+playing.at.home <- c(rep(1,G), rep(0,G)) 
+data <- data.frame(y, attack, defense, playing.at.home) 
+
+prec.prior <- list(prec=list(prior = "loggamma", param = c(0.001, 0.001)))
+prior.beta <- list(mean.intercept = 0, prec.intercept = 0.001, mean = 0, prec = 0.00001)
+
+model2a <- inla(formula = y ~ 1+ attack + defense + playing.at.home, 
+               data = data, 
+               family = "Gaussian",
+               control.compute = list(dic = TRUE, return.marginals.predictor=TRUE, 
+                                      cpo=TRUE, config = TRUE),
+               control.family = list(hyper = prec.prior),
+               control.fixed = prior.beta,
+               control.predictor = list(compute = TRUE))
+
+summary(model2a)
+rmse(data$y, model2a$summary.fitted.values[,1])
+```
+
+In the above cell code we have fitter model 2.a). This model takes an
+attack and defense parameter that are team-specific, and a general
+parameter accounting for home court advantage. The priors chosen for
+precision ($\tau$) and the beta vector (intercept and the
+hyperparameters of the coefficients that multiply each parameter in our
+regression) are completely uninformative. The reason to do this is
+because we do not have any prior information on any of these parameters.
+Thus $\tau$ will have a log-gamma distribution (as it cannot be
+negative), and the hyperparameters of the beta vector will have mean = 0
+and low precision.
+
+The summary statistics for the posterior distributions of parameteres
+are showed in the output above. A larger value of an attack parameter
+will likely lead to a higher scoring. On the contrary, a larger defense
+parameter will lead to less points scored. Playing at home, having a
+positive coefficient, implies that teams playing in their arena will
+likely score more points compared to another match under the exact same
+conditions, but playing on the road. To avoid colinearity, the attack
+and defense coefficients of the Philadelphia 76ers have been removed.
+
+To evaluate the performance of the model, we calculate the Root Mean
+Squared Error (RMSE). In this case, the result of the RMSE is 11.58302.
+The RMSE is a measure of precision, which calculates the average
+difference between values predicted by a model and the actual values. As
+this is our most basic model, the objective is to improve the RMSE value
+in the following steps.
+
+**b)[10 marks] In part a), the model assumed that the home effect is the
+same for each team. In this part, we consider a team-specific home
+effect** $h_{home.team}$,
+
+$\begin{aligned} \mu_{g}^{H}&= \beta_0+a_{home.team}+d_{away.team}+h_{home.team}\\ \mu_{g}^{A}&= \beta_0+a_{away.team}+d_{home.team} \end{aligned}$
+
+**Implement this model. Select your own prior distributions for the
+parameters, and discuss the reason for using those priors.**
+
+**Obtain the summary statistics for the posterior distribution of the
+model parameters.**
+
+**Evaluate the root mean square error (RMSE) of your posterior means
+versus the true scores.**
+
+**Interpret the results.**
+
+```{r}
+################### Model 2b
+
+data_model2b <- final_data
+teamnames <- teams$NICKNAME
+
+home_indicator <- c(data_model2b$HOME_NICKNAME, 
+                    rep(0, length(data_model2b$HOME_NICKNAME)))
+
+data2b <- data.frame(y, attack, defense, home_indicator) 
+
+model2b <- inla(formula = y~1 + attack + defense + home_indicator, data = data2b,
+                family="Gaussian",
+                control.compute = list(dic = TRUE, return.marginals.predictor=TRUE, 
+                                      cpo=TRUE, config = TRUE),
+                control.family = list(hyper = prec.prior),
+                control.fixed = prior.beta,
+                control.predictor = list(compute = TRUE))
+  
+summary(model2b)
+
+rmse(data$y, model2b$summary.fitted.values[,1])
+```
+
+In the above cell code we have fitted model 2.b). This model takes an
+attack and defense parameter for each team, and a home court advantage
+parameter that is team-specific. As before, the priors have been chosen
+to be completely uninformative, as we do not have any information on
+what value this parameters should take.
+
+The summary statistics for the posterior distributions of parameters are
+showed in the output above. As before, a larger value of an attack
+parameter will likely lead to a higher scoring, while a larger defense
+parameter will lead to less points scored. Now, playing at home will
+have a positive effect on the expected scoring of a team if the
+estimated parameter is positive (as in the case of the \*attack
+parameter). As in the previous model, to avoid colinearity, the attack
+and defense coefficients of the Philadelphia 76ers have been removed.
+
+To evaluate the performance of the model, we calculate the RMSE. In this
+case, the RMSE = 11.47522. This is an improvement compared to the
+previous model (as the MRSE is lower). Thus, model 2b is more accurate
+than model 2a when predicting scoring of teams in NBA matches.
+
+**c)[10 marks] Propose an improved linear model using the information in
+the dataset before the game (you cannot use any information in the same
+row as the game, as this is only available after the game). Hint: you
+can try incorporating running averages of some covariates specific to
+each team, by doing some pre-processing.**
+
+**Implement your model. Select your own prior distributions for the
+parameters, and discuss the reason for using those priors.**
+
+**Obtain the summary statistics for the posterior distribution of the
+model parameters.**
+
+**Evaluate the root mean square error (RMSE) of your posterior means
+versus the true scores.**
+
+**Interpret the results.**
+
+```{r}
+##################### Model 2c "Tired" factor
+
+data_model2c <- final_data
+
+season.beginning <- as.Date(data_model2c[1, "GAME_DATE_EST"])
+season.ending <- as.Date(data_model2c[nrow(data_model2c), "GAME_DATE_EST"])
+
+home.team.previous.games <- c()
+away.team.previous.games <- c()
+
+for (i in 1:nrow(data_model2c)){ #calculate number of matches in last 5 days by home                                       team
+  date <- final_data[i, "GAME_DATE_EST"]
+  time.interval <- as.Date(date) - 5
+  team <- final_data[i, "HOME_NICKNAME"]
+  shortlist_H <- data_model2c$HOME_NICKNAME[as.Date(data_model2c$GAME_DATE_EST) < 
+                    date & as.Date(data_model2c$GAME_DATE_EST) > time.interval] 
+  shortlist_A <- data_model2c$AWAY_NICKNAME[as.Date(data_model2c$GAME_DATE_EST) < 
+                    date & as.Date(data_model2c$GAME_DATE_EST) > time.interval] 
+  
+  previous.games <- length(shortlist_H[shortlist_H == team])
+                  + length(shortlist_A[shortlist_A == team])
+  
+  home.team.previous.games <- append(home.team.previous.games, previous.games)
+  
+}
+
+
+for (i in 1:nrow(data_model2c)){#calculate number of matches in last 5 days by away                                       team
+  date <- final_data[i, "GAME_DATE_EST"]
+  time.interval <- as.Date(date) - 5
+  team <- final_data[i, "AWAY_NICKNAME"]
+  shortlist_H <- data_model2c$HOME_NICKNAME[as.Date(data_model2c$GAME_DATE_EST) <
+                    date & as.Date(data_model2c$GAME_DATE_EST) > time.interval]
+  shortlist_A <- data_model2c$AWAY_NICKNAME[as.Date(data_model2c$GAME_DATE_EST) <
+                    date & as.Date(data_model2c$GAME_DATE_EST) > time.interval]
+  
+  previous.games <- length(shortlist_H[shortlist_H == team])
+                  + length(shortlist_A[shortlist_A == team])   
+  
+  away.team.previous.games <- append(away.team.previous.games, previous.games)
+  
+}
+
+all.previous.games <- c(home.team.previous.games, away.team.previous.games)
+
+
+data2c <- data.frame(y, attack, defense, home_indicator, all.previous.games) 
+
+model2c <- inla(formula = y ~ 1 + attack + defense + home_indicator + all.previous.games, data = data2c,
+                family="Gaussian",
+                control.compute = list(dic = TRUE, return.marginals.predictor=TRUE, 
+                                      cpo=TRUE, config = TRUE),
+                control.family = list(hyper = prec.prior),
+                control.fixed = prior.beta,
+                control.predictor = list(compute = TRUE))
+  
+summary(model2c)
+
+rmse(data$y, model2c$summary.fitted.values[,1])
+
+
+
+
+
+```
+
+This model is built on top of model 2b, and takes into account how
+rested or tired teams are. For this, it calculates the number of games
+that each team played in the previous 5 days of a particular match. The
+expected result would be that this variable had a negative coefficient,
+meaning that the more games a teams has played recently, the more tired
+they would be and thus score less points. Again, the priors of the model
+have been chosen to be completely uninformative, as we do not have any
+information on the coefficeint they should take.
+
+The summary statistics for the posterior distribution of the parameters
+can be accessed in the code cell's output above. The intuition behind
+the parameters of attack, defense and play-at-home are as in model 2b.
+The negative coefficient in the variable corresponding to the number of
+games played in the last 5 games is negative, as expected. This means
+that the more number of games that are played by a team prior to a
+particular fixture, the less points that team is expected to score in
+that match.
+
+The MRSE for this model is 11.47156. It is an improvement in comparison
+to model 2b, although the difference is not big (and could even be due
+to the randomness of MCMC methods).
+
+**d)[10 marks] Perform posterior predictive checks on all 3 models a),
+b), and c). Explain how did you choose the test functions.**
+
+**Discuss the results.**
+
+```{r}
+cat("DIC:", model2a$dic$dic, "\n") 
+cat("NSLCPO:", -sum(log(model2a$cpo$cpo)), "\n") 
+cat("Log Marginal Likelihood:", model2a$mlik[1], "\n") 
+hist(model2a$cpo$pit, main = "Model 2a PIT")
+
+cat("DIC:", model2b$dic$dic, "\n")
+cat("NSLCPO:", -sum(log(model2b$cpo$cpo)), "\n") 
+cat("Log Marginal Likelihood:", model2b$mlik[1], "\n") 
+hist(model2b$cpo$pit, main = "Model 2b PIT")
+
+cat("DIC:", model2c$dic$dic, "\n") 
+cat("NSLCPO:", -sum(log(model2c$cpo$cpo)), "\n") 
+cat("Log Marginal Likelihood:", model2c$mlik[1], "\n")
+hist(model2c$cpo$pit, main = "Model 2c PIT")
+```
+
+Now, we proceed to do some posterior predictive checks for the three
+previous models. First, we calculate their Deviance Information
+Criterion (DIC), the sum of the negative log Conditional Predictive
+Ordinate, and the log marginal likelihood. The results are shown above.
+As they are not really positive, we proceed to do more checks.
+
+Firstly, we plot the histograms for Predictive Integral Transform (PIT)
+for each model. Ideally, the PIT should be perfectly uniformly
+distributed between 0 and 1. We see that the three models have a
+distribution close to ideal.
+
+```{r}
+
+n <- nrow(gamess)
+
+##########Model 2a
+
+samp2a <- inla.posterior.sample(1000, model2a)
+
+fitted.values2a=inla.posterior.sample.eval(function(...) {Predictor}, samp2a) #getting fitted values 
+yrep=matrix(0, nrow=n, ncol=1000) #setting up empty yrep matrix 
+  
+sigma=1/sqrt(inla.posterior.sample.eval(function(...) {theta}, samp2a))  #defining our sigma 
+  
+
+for(row.num in 1:n){
+    yrep[row.num, ]<- fitted.values2a[row.num, ]+rnorm(n=1000, mean=0, sd=sigma) #adding noise 
+  }
+
+
+# Compute posterior predictive distributions
+yrepmin2a=apply(yrep,2,min)
+yrepmax2a=apply(yrep,2,max)
+yrepmedian2a = apply(yrep,1,median)
+yrepskewness2a = apply(yrep,1,skewness)
+yrepkurtosis2a <- apply(yrep,1,kurtosis)
+
+
+hist(yrepmin2a,col="gray40", main="Predictive distribution for minimum")
+abline(v=min(y),col="blue",lwd=2)
+
+hist(yrepmax2a,col="gray40", main="Predictive distribution for maximum")
+abline(v=max(y),col="blue",lwd=2)
+
+hist(yrepmedian2a,col="gray40", main="Predictive distribution for median")
+abline(v=median(y),col="blue",lwd=2)
+# 
+hist(yrepskewness2a,col="gray40", main="Predictive distribution for skewness")
+abline(v=skewness(y),col="blue",lwd=2)
+# 
+hist(yrepkurtosis2a,col="gray40", main="Predictive distribution for kurtosis")
+abline(v=kurtosis(y),col="blue",lwd=2)
+```
+
+Now, we perform further posterior model checks to discard other major
+issues. As in exercise 1, we compute posterior predictive distribution
+of min and max scores, median, kurtosis and skewness. The distributions
+of min and max scores, as well as skewness, are not ideal when compared
+to the real observed data.
+
+```{r}
+##########Model 2b checks
+
+samp2b <- inla.posterior.sample(1000, model2b)
+
+fitted.values2b=inla.posterior.sample.eval(function(...) {Predictor}, samp2b)       
+                  #getting fitted values 
+yrep=matrix(0, nrow=n, ncol=1000) #setting up empty yrep matrix 
+  
+sigma=1/sqrt(inla.posterior.sample.eval(function(...) {theta}, samp2b))  #defining  sigma 
+  
+
+for(row.num in 1:n){
+    yrep[row.num, ]<- fitted.values2b[row.num, ]+rnorm(n=1000, mean=0, sd=sigma) #adding noise 
+  }
+
+
+#Compute posterior predictive distributions
+yrepmin2b=apply(yrep,2,min)
+yrepmax2b=apply(yrep,2,max)
+yrepmedian2b = apply(yrep,1,median)
+yrepskewness2b = apply(yrep,1,skewness)
+yrepkurtosis2b <- apply(yrep,1,kurtosis)
+
+
+hist(yrepmin2b,col="gray40", main="Predictive distribution for minimum")
+abline(v=min(y),col="blue",lwd=2)
+
+hist(yrepmax2b,col="gray40", main="Predictive distribution for maximum")
+abline(v=max(y),col="blue",lwd=2)
+
+hist(yrepmedian2b,col="gray40", main="Predictive distribution for median")
+abline(v=median(y),col="blue",lwd=2)
+# 
+hist(yrepskewness2b,col="gray40", main="Predictive distribution for skewness")
+abline(v=skewness(y),col="blue",lwd=2)
+# 
+hist(yrepkurtosis2b,col="gray40", main="Predictive distribution for kurtosis")
+abline(v=kurtosis(y),col="blue",lwd=2)
+
+```
+
+The same checks are performed for model 2b, and the same issues arise.
+The distribution of min, max and skewness of the scores do not perfectly
+match real observed data, although there is an improvement in comparison
+to model 2a.
+
+```{r}
+##########Model 2c
+
+samp2c <- inla.posterior.sample(1000, model2c)
+
+fitted.values2c=inla.posterior.sample.eval(function(...) {Predictor}, samp2c) #getting fitted values 
+yrep=matrix(0, nrow=n, ncol=1000)  
+  
+sigma=1/sqrt(inla.posterior.sample.eval(function(...) {theta}, samp2c))  #defining our sigma 
+  
+
+for(row.num in 1:n){
+    yrep[row.num, ]<- fitted.values2a[row.num, ]+rnorm(n=1000, mean=0, sd=sigma) #adding noise 
+  }
+
+
+#Compute posterior predictive distributions
+yrepmin2c=apply(yrep,2,min)
+yrepmax2c=apply(yrep,2,max)
+yrepmedian2c = apply(yrep,1,median)
+yrepskewness2c = apply(yrep,1,skewness)
+yrepkurtosis2c <- apply(yrep,1,kurtosis)
+
+
+hist(yrepmin2c,col="gray40",main="Predictive distribution for minimum")
+abline(v=min(y),col="blue",lwd=2)
+
+hist(yrepmax2c,col="gray40",main="Predictive distribution for maximum")
+abline(v=max(y),col="blue",lwd=2)
+
+hist(yrepmedian2c,col="gray40", main="Predictive distribution for median")
+abline(v=median(y),col="blue",lwd=2)
+# 
+hist(yrepskewness2c,col="gray40", main="Predictive distribution for skewness")
+abline(v=skewness(y),col="blue",lwd=2)
+# 
+hist(yrepkurtosis2c,col="gray40",main="Predictive distribution for kurtosis")
+abline(v=kurtosis(y),col="blue",lwd=2)
+```
+
+Lastly, the checks are performed on model 2c. A slight improvement is
+achieved in comparison to models 2a and 2b, although the same general
+problems seem to be present. The histograms for max, min and skewness
+show a deviation between the distributions and the observed data.
+
+**e)[10 marks] In the previous questions, we were assuming a model of
+the
+form.**$$S_g^{H}\sim N(\mu_{g}^{H},\sigma^2), \quad S_g^{A}\sim N(\mu_{g}^{A}, \sigma^2).$$**It
+is natural to model these two results jointly with a multivariate
+normal,**
+
+$$(S_g^{H}, S_g^{A})\sim N\left(\left(\begin{matrix}\mu_{g}^{H}\\\mu_{g}^{A}\end{matrix}\right),\Sigma\right),$$
+
+**where** $\Sigma$ **is a 2 times 2 covariance matrix.**
+
+**Implement such a model. The definition of** $\mu_g^{H}$ **and**
+$\mu_g^{A}$ **can be either one of a), b), or c), you just need to
+implement one of them.**
+
+**Explain how did you choose the prior on** $\Sigma$ **[Hint: you can
+use a Wishart prior, or express this a product of diagonal and
+correlation matrices and put priors on those terms].**
+
+**Obtain the summary statistics for the posterior distribution of the
+model parameters.**
+
+**Evaluate the root mean square error (RMSE) of your posterior means
+versus the true scores.**
+
+**Interpret the results.**
+
+```{r}
+model2e <- "
+model {
+    # Priors
+    beta_0 ~ dnorm(0, 0.01)
+    df <- 4 # degrees of freedom for the wishart distribution
+    
+    prec_mat[1,1]<-1
+    prec_mat[1,2]<-0
+    prec_mat[2,1]<-0
+    prec_mat[2,2]<-1
+    
+  
+    for(j in 1:NumberTeams){
+       attack.homeName[j] ~ dnorm(0,0.01)
+       attack.awayName[j] ~ dnorm(0,0.01)
+       defense.homeName[j] ~ dnorm(0,0.01)
+       defense.awayName[j] ~ dnorm(0,0.01)
+    }
+    
+    
+  ##Likelihood
+  for (g in 1:G) {
+      # Predicted score
+      Score[g,1:2] ~ dmnorm(c(mu.home[g], mu.away[g]), Sigma)
+      
+      # Replicate
+      Score.rep[g,1:2] ~ dmnorm(c(mu.home[g], mu.away[g]), Sigma)
+      
+      
+      mu.home[g] <- beta_0 + attack.homeName[attack.home[g]] + 
+      defense.awayName[defense.away[g]] + at.home[g]
+      
+      mu.away[g] <- beta_0 + attack.awayName[attack.away[g]] + 
+      defense.homeName[defense.home[g]]
+  }
+    
+    Sigma ~ dwish(prec_mat, df)
+    
+    
+    
+}"
+
+
+attack_home <- attack[1:G] 
+attack_away <- attack[(G+1): (2*G)]
+defense_home <- defense[1:G]
+defense_away <- defense[(G+1):(2*G)]
+playing_at_home <- rep(1, G)
+
+number_teams <- uniqueN(attack)
+
+Score <- cbind(gamess$PTS_home, gamess$PTS_away)
+
+data_jags = list(attack.home = attack_home, attack.away = attack_away, defense.home = defense_home, defense.away = defense_away  , at.home = playing_at_home, G=G, Score = Score, NumberTeams=number_teams)
+
+model_4 <- jags.model(textConnection(model2e), data = data_jags,n.chains=4)
+
+update(model_4, 10000)
+
+scores.replicates = coda.samples(model_4,variable.names=c("Score.rep"),
+                                 n.iter= 10000)
+
+res_sum <- summary(scores.replicates)
+
+# res_sum ##Uncomment this to see summary statistics
+
+pred_scores = c()
+for (i in 1:(2*G)){
+  pred_scores <- append(pred_scores,res_sum$statistics[[i]])
+}
+
+rmse(pred_scores, rbind(gamess$PTS_home, gamess$PTS_away))
+
+```
+
+```{r}
+#for 10000 samples
+update(model_4, 10000)
+
+## Collecting sample from the model
+# samplesNBA <- coda.samples(model_4, variable.names = c("beta_0", "v"),
+#                            n.iter = 10000, n.thin=5)
+
+scores.replicates = coda.samples(model_4,variable.names=c("Score.rep"),
+                                 n.iter= 10000) 
+
+# scores.rep.mat <- as.matrix(scores.replicates)
+# scores.mean <- apply(scores.rep.mat, 2, mean)
+# scores.mean <- c(scores.rep.mat[,1], scores.rep.mat[,2])
+# summary(samplesNBA)
+
+# rmse_5 <- rmse(scores.mean, rbind(gamess$PTS_home, gamess$PTS_away))
+# rmse_5
+
+
+
+
+res_sum <- summary(scores.replicates)
+
+pred_scores = c()
+for (i in 1:(2*G)){
+  pred_scores <- append(pred_scores,res_sum$statistics[[i]])
+}
+
+rmse(pred_scores, rbind(gamess$PTS_home, gamess$PTS_away))
+
+
+```
+
+Lastly, we implement model 2e, that jointly defines the scores of the
+home team and away team in a multinormal distribution. In this model,
+the $\Sigma$ was defined to be following a Wishart distribution. The
+prior set on it was a precision matrix, with diagonal elements = 1 and
+off-diagonal elements = 0. The degrees of freedom have been chosen to be
+4, which had to be larger than $n-1$, where $n = 2$ is the dimension of
+$\Sigma$.
+
+The summary statistics are presented in the first cell of code, hidden
+under a comment in the code. The MRSE is sapproximately 12.907, which
+implies a slightly lower precision of this model in comparison to models
+2a, 2b and 2c. However, this model was based on model 2a (the simplest
+one), so it likely has room for improvement.
